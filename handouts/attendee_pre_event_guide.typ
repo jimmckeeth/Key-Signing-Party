@@ -32,8 +32,8 @@ If the Google Form does not work, email the same information to `openpgp@mckeeth
   [Before submitting], [Upload to keys.openpgp.org and complete its email verification.],
   [Wed, Apr 29], [Submit the form by 11:59 PM Mountain Time.],
   [Thu, Apr 30], [Watch for organizer correction requests. Respond quickly.],
-  [Fri, May 1], [Print your own fingerprint and put it with your government-issued photo ID.],
-  [Sat, May 2], [Bring your ID and printed fingerprint. Verify in person; sign later.],
+  [Fri, May 1], [The organizer will email the final key list. Save it and run: `sha256sum keylist.pdf` (Linux/macOS) or `Get-FileHash keylist.pdf` (Windows). Write down the hash. Print your fingerprint. Bring both with your government-issued photo ID.],
+  [Sat, May 2], [Bring your ID, printed fingerprint, and computed hash. Verify hash at the start; verify identity and fingerprint in person; sign later.],
 )
 
 = 1. Install GnuPG
@@ -69,6 +69,19 @@ If you already have a strong key, use it instead of creating a second identity c
 - #link("https://www.gnupg.org/documentation/manuals/gnupg/OpenPGP-Key-Management.html")[GnuPG OpenPGP key management]
 - #link("https://www.gnupg.org/documentation/manuals/gnupg26/gpg.1.html")[GnuPG command reference]
 
+#callout(
+  [Advanced: offline master key with subkeys],
+  [
+    A stronger setup separates your long-term primary (master) key from daily-use subkeys for signing, encryption, and authentication. The primary key is kept offline on encrypted media and brought online only to certify new subkeys, sign others' keys, or issue revocations. Daily operations use subkeys stored on your computer or a hardware token such as a YubiKey or Nitrokey.
+
+    This means a compromised laptop or lost hardware token does not expose your identity — you revoke and replace the affected subkey while your web of trust remains intact.
+
+    - #link("https://github.com/drduh/yubikey-guide")[drduh YubiKey Guide — offline key generation, subkey setup, and hardware token provisioning]
+    - #link("https://www.gnupg.org/gph/en/manual/c235.html")[GnuPG key management — primary keys and subkeys]
+    - #link("https://wiki.debian.org/Subkeys")[Debian Wiki: Subkeys]
+  ],
+)
+
 = 3. Protect Your Private Key
 
 Never submit, email, upload, paste, copy, or share your private key or GnuPG home directory. The organizer only needs your public key.
@@ -78,6 +91,30 @@ If you see text beginning with this, stop:
 #command[`-----BEGIN PGP PRIVATE KEY BLOCK-----`]
 
 Do not submit it.
+
+== Passphrase
+
+GnuPG encrypts your private key on disk with a passphrase. A weak passphrase is one of the most common ways keys are compromised.
+
+#callout(
+  [Passphrase best practices],
+  [
+    - *Use a diceware phrase* — five or more random words (for example, "correct horse battery staple finch") gives strong protection and is practical to memorize. See #link("https://www.eff.org/dice")[EFF's diceware word list].
+    - *Avoid* keyboard patterns, dictionary words alone, or anything derived from personal information.
+    - *Never reuse* a passphrase from another account or service.
+    - *Back up your passphrase* in writing and store it in a physically separate, secure location from your key backup media. If you lose both, your key is unrecoverable.
+  ],
+)
+
+== Private Key Backup
+
+Export an encrypted backup of your full private key and store it on offline media (such as an encrypted USB drive) kept in a secure location:
+
+#command[`gpg --armor --export-secret-keys you@example.com > private-key-backup.asc`]
+
+Also generate a revocation certificate immediately and keep it separately — you will need it to invalidate your key if it is ever compromised or lost:
+
+#command[`gpg --gen-revoke you@example.com > revoke.asc`]
 
 = 4. Export Your Public Key
 
@@ -123,7 +160,7 @@ Submit the full fingerprint in the form. It must match the public key you paste.
 #checklist((
   [A current photo ID issued by a state or federal government, such as a state driver's license, state ID card, government passport, military ID, or similar government-issued photo identification.],
   [A printed copy of your own full fingerprint.],
-  [Your marked attendee sheet after the event; you will need it before signing.],
+  [Your computed SHA-256 hash of the key list file the organizer emailed.],
 ))
 
 School IDs, workplace badges, conference badges, social media profiles, and personal recognition are not enough for this event's key verification process.
