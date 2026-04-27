@@ -64,6 +64,8 @@ After the form closes, accept only organizer-requested corrections for already-s
 
 = Validation Workflow
 
+Run validation on a machine with GnuPG and Python 3 installed.
+
 Export the Google Form responses to:
 
 #command[`handouts\data\form_submissions.csv`]
@@ -71,6 +73,10 @@ Export the Google Form responses to:
 Run validation:
 
 #command[`powershell -ExecutionPolicy Bypass -File handouts\scripts\validate_submissions.ps1`]
+
+or on Linux/macOS:
+
+#command[`bash handouts/scripts/validate_submissions.sh`]
 
 The validation script is the source of truth for final artifacts. Do not manually assemble or edit final output files. Fix source submissions and rerun validation.
 
@@ -147,9 +153,11 @@ If a printed name, email, or fingerprint is wrong:
 
 = Event Briefing
 
+Ask attendees to sign or initial their sheet as soon as they receive it. This lets each person confirm after the event that their marked sheet is the one they personally held during in-person verification.
+
 Read this:
 
-#command[`Today we verify identity and full OpenPGP fingerprints. Check a current state or federal government-issued photo ID, compare the complete fingerprint, and mark your own sheet only if both match. School IDs, badges, social profiles, and personal recognition are not enough for this event. Do not sign keys here. If anyone pressures you to accept a mismatch or skip checks, stop and tell an organizer. After the event, import the final bundle, verify fingerprints again, then sign only keys you personally verified.`]
+#command[`Sign or initial your sheet now before we begin. Today we verify identity and full OpenPGP fingerprints. Check a current state or federal government-issued photo ID, compare the complete fingerprint against the participant's own trusted copy, and mark your own sheet only if both match. School IDs, badges, social profiles, and personal recognition are not enough for this event. Do not sign keys here. If anyone pressures you to accept a mismatch or skip checks, stop and tell an organizer. After the event, import the final bundle, verify fingerprints again, then sign only keys you personally verified.`]
 
 = Post-Event Package
 
@@ -165,18 +173,33 @@ Do not distribute `all-keys.asc` before or during the event.
 
 Follow-up wording:
 
-#command[`Import the attached key bundle, compare each fingerprint against your printed sheet and event marks, and sign only keys you personally verified. If anything does not match, do not sign. Use certification level 3 when you are comfortable that you carefully checked government-issued photo ID and full fingerprint; choose a lower level or do not sign if you are unsure. Export signed keys and send them directly to the key owners.`]
+#command[`Import the attached key bundle, compare each fingerprint against your printed sheet and event marks, and sign only keys you personally verified. If anything does not match, do not sign. Certification level 2 is the normal choice after checking government-issued photo ID and the full fingerprint in person. Use level 3 only if you also know the person or independently verified email control; choose level 0 or do not sign if you are unsure. Export signed keys and send them directly to the key owners.`]
 
 = Data Handling
 
 Google Form responses and validation exports may be shared only with named event co-organizers who need access for validation, printing, or event operations.
 
-The organizer may retain submitted information and final event materials indefinitely in private records, email archives, and OpenPGP keyrings for event continuity, troubleshooting, and trust-management purposes. Do not sell this information, post the attendee list publicly, or intentionally share it outside registered participants and event organizers.
+Public key User IDs and fingerprints are not secrets: they are published on key directories, distributed to participants, and may remain in local OpenPGP keyrings after signing. Still, the event roster, raw form export, correction log, and attendance markings reveal a specific group association and should be treated as private event operations data.
+
+Keep final public event artifacts needed for continuity and trust management, such as the key bundle and final key list. Delete or restrict raw Google Form exports, correction logs, and working validation files after follow-up is complete unless there is a concrete operational reason to retain them. Do not sell this information, post the attendee list publicly, or intentionally share it outside registered participants and event organizers.
 
 = Source Notes
 
+*Key signing party organization*
+- #link("https://www.first.org/pgp/PGP-GnuPG_Key_Signing_Party_v1.0.pdf")[FIRST PGP/GnuPG Key Signing Party guide (PDF) — organizer procedures and protocols]
+- #link("https://techwolf12.nl/blog/hosting-successful-gpg-keysigning-party/")[Hosting a successful GPG Keysigning Party — event flow and organizer checklist]
+- #link("https://logological.org/keysigning")[Tristan Miller's key signing party guide — hash verification protocol]
+- #link("https://danielpecos.com/2024/01/23/attending-a-pgp-gnupg-signing-party/")[Attending a PGP/GnuPG signing party — attendee perspective]
+
+*Post-event signing tools*
+- #link("https://salsa.debian.org/signing-party-team/signing-party")[signing-party package (caff) — encrypts signatures to recipient before emailing]
+- #link("https://www.phildev.net/pius/")[pius — PGP Individual UID Signer]
+
+*Keyservers*
 - #link("https://keys.openpgp.org/about/usage-gnupg/")[keys.openpgp.org GnuPG usage guide]
 - #link("https://keys.openpgp.org/about/faq/")[keys.openpgp.org FAQ]
+
+*GnuPG reference*
 - #link("https://www.gnupg.org/documentation/manuals/gnupg/OpenPGP-Key-Management.html")[GnuPG OpenPGP key management]
-- #link("https://danielpecos.com/2024/01/23/attending-a-pgp-gnupg-signing-party/")[Attending a PGP/GnuPG signing party]
+- #link("https://www.gnupg.org/gph/en/manual.html")[GNU Privacy Handbook]
 ]
