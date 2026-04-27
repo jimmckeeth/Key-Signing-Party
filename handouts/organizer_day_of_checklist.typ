@@ -71,7 +71,7 @@
 
     #tight-title[Opening Script]
     #block(width: 100%, inset: 5pt, radius: 3pt, fill: rgb("#f0f4f7"), stroke: 0.5pt + bcc-rule)[
-      #text(size: 7.3pt)[Check current state or federal photo ID, compare the complete fingerprint, and mark your sheet only if both match. School IDs and badges are not enough. Skip anything unclear. Do not sign keys here. Report pressure to skip checks.]
+      #text(size: 7.3pt)[*First: ask everyone to sign or initial their sheet now.* Then: Check current state or federal photo ID, compare the complete fingerprint against the participant's own trusted copy, and mark your sheet only if both match. School IDs and badges are not enough. Skip anything unclear. Do not sign keys here. Report pressure to skip checks.]
     ]
 
     #tight-title[Run of Show]
