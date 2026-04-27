@@ -10,10 +10,10 @@ import re
 import shutil
 import subprocess
 import sys
-import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
+import uuid
 from pathlib import Path
 
 
@@ -26,7 +26,10 @@ def norm_fpr(value: str) -> str:
 
 
 def truthy(value: str) -> bool:
-    return value.strip().lower() in {"yes", "true", "checked", "i agree", "agree", "accepted", "1"}
+    cleaned = value.strip().lower()
+    if not cleaned:
+        return False
+    return cleaned not in {"no", "false", "unchecked", "declined", "0"}
 
 
 def find_field(headers: list[str], candidates: list[str]) -> str | None:
@@ -44,6 +47,16 @@ def find_field(headers: list[str], candidates: list[str]) -> str | None:
 
 def field(row: dict[str, str], name: str | None) -> str:
     return (row.get(name or "", "") or "").strip()
+
+
+def require_fields(found: dict[str, str | None]) -> bool:
+    missing = [label for label, header in found.items() if not header]
+    if not missing:
+        return True
+    print("Required CSV column(s) not found:", file=sys.stderr)
+    for label in missing:
+        print(f"  - {label}", file=sys.stderr)
+    return False
 
 
 def parse_time(value: str) -> dt.datetime:
@@ -71,45 +84,70 @@ def run_gpg(args: list[str], homedir: Path, stdin: bytes | None = None) -> subpr
     )
 
 
-def inspect_key(public_key: str) -> tuple[dict[str, str | list[str]], str | None]:
-    with tempfile.TemporaryDirectory(prefix="ksp-gpg-") as tmp:
-        homedir = Path(tmp)
+def clean_gpg_stderr(stderr: bytes) -> str:
+    ignored = (
+        "keybox ",
+        "trustdb.gpg: trustdb created",
+        "directory ",
+    )
+    lines = []
+    for line in stderr.decode("utf-8", "replace").splitlines():
+        text = line.strip()
+        if not text:
+            continue
+        if any(marker in text for marker in ignored) and "created" in text:
+            continue
+        lines.append(text)
+    return "\n".join(lines)
+
+
+def inspect_key(public_key: str, temp_root: Path) -> tuple[dict[str, str | list[str]], str | None]:
+    temp_root.mkdir(parents=True, exist_ok=True)
+    homedir = temp_root / f"ksp-gpg-{uuid.uuid4().hex}"
+    try:
+        homedir.mkdir()
         key_path = homedir / "key.asc"
         key_path.write_text(public_key, encoding="utf-8")
         imported = run_gpg(["--import", str(key_path)], homedir)
         if imported.returncode != 0:
-            return {}, imported.stderr.decode("utf-8", "replace").strip()
+            return {}, clean_gpg_stderr(imported.stderr)
         listed = run_gpg(["--with-colons", "--fingerprint", "--list-keys"], homedir)
         if listed.returncode != 0:
-            return {}, listed.stderr.decode("utf-8", "replace").strip()
+            return {}, clean_gpg_stderr(listed.stderr)
+    finally:
+        shutil.rmtree(homedir, ignore_errors=True)
 
-    primary_fpr = ""
+    primary_fprs: list[str] = []
     key_type = ""
     expires = ""
     revoked = False
     expired = False
     uids: list[str] = []
-    saw_pub = False
+    primary_index = -1
 
     for line in listed.stdout.decode("utf-8", "replace").splitlines():
         parts = line.split(":")
         if parts[0] == "pub":
-            saw_pub = True
+            primary_index += 1
             validity = parts[1]
-            key_type = f"algo-{parts[3]}" if len(parts) > 3 else ""
-            expires = parts[6] if len(parts) > 6 else ""
-            revoked = validity == "r"
-            expired = validity == "e"
-        elif parts[0] == "fpr" and saw_pub and not primary_fpr:
-            primary_fpr = parts[9]
-        elif parts[0] == "uid" and len(parts) > 9:
+            if primary_index == 0:
+                key_type = f"algo-{parts[3]}" if len(parts) > 3 else ""
+                expires = parts[6] if len(parts) > 6 else ""
+                revoked = validity == "r"
+                expired = validity == "e"
+        elif parts[0] == "fpr" and primary_index >= 0 and len(primary_fprs) == primary_index:
+            primary_fprs.append(parts[9])
+        elif parts[0] == "uid" and primary_index == 0 and len(parts) > 9:
             uids.append(parts[9])
 
-    if not primary_fpr:
+    if len(primary_fprs) != 1:
+        return {}, f"Expected exactly one primary public key, found {len(primary_fprs)}."
+
+    if not primary_fprs[0]:
         return {}, "No primary fingerprint found after import."
 
     return {
-        "fingerprint": primary_fpr,
+        "fingerprint": primary_fprs[0],
         "key_type": key_type,
         "expires": expires,
         "revoked": str(revoked),
@@ -118,7 +156,7 @@ def inspect_key(public_key: str) -> tuple[dict[str, str | list[str]], str | None
     }, None
 
 
-def lookup_keyserver(email: str) -> tuple[str | None, str | None]:
+def lookup_keyserver(email: str, temp_root: Path) -> tuple[str | None, str | None]:
     url = "https://keys.openpgp.org/vks/v1/by-email/" + urllib.parse.quote(email)
     try:
         with urllib.request.urlopen(url, timeout=20) as response:
@@ -130,7 +168,7 @@ def lookup_keyserver(email: str) -> tuple[str | None, str | None]:
     except Exception as exc:
         return None, f"keys.openpgp.org lookup failed: {exc}."
 
-    info, error = inspect_key(public_key)
+    info, error = inspect_key(public_key, temp_root)
     if error:
         return None, "keys.openpgp.org returned a key that could not be parsed."
     return str(info["fingerprint"]), None
@@ -150,6 +188,23 @@ def format_expiry(value: str) -> str:
         return dt.datetime.fromtimestamp(int(value), tz=dt.timezone.utc).date().isoformat()
     except ValueError:
         return value
+
+
+def typst_text(value: str) -> str:
+    return (
+        value.replace("\\", "\\\\")
+        .replace("[", "\\[")
+        .replace("]", "\\]")
+        .replace("#", "\\#")
+        .replace("*", "\\*")
+        .replace("_", "\\_")
+        .replace("`", "\\`")
+        .replace("@", "\\@")
+    )
+
+
+def typst_raw(value: str) -> str:
+    return value.replace("\\", "\\\\").replace("`", "\\`")
 
 
 def write_csv(path: Path, rows: list[dict[str, str]], columns: list[str]) -> None:
@@ -188,14 +243,29 @@ def main() -> int:
     key_col = find_field(headers, ["ascii armored public key", "public key block", "openpgp public key", "public key"])
     fpr_col = find_field(headers, ["primary key fingerprint", "full fingerprint", "fingerprint"])
     time_col = find_field(headers, ["timestamp", "submission time"])
-    ack_cols = [
-        header for header in headers
-        if any(word in norm_header(header) for word in ("consent", "acknowledg", "liability", "accuracy"))
-    ]
+    privacy_col = find_field(headers, ["privacy sharing consent", "privacy consent", "sharing consent"])
+    accuracy_col = find_field(headers, ["submission accuracy", "accuracy acknowledgment", "accuracy"])
+    liability_col = find_field(headers, ["risk liability acknowledgment", "liability acknowledgment", "risk acknowledgment"])
+
+    required = {
+        "Timestamp": time_col,
+        "Full name": name_col,
+        "Email address": email_col,
+        "ASCII-armored public key block": key_col,
+        "Full primary fingerprint": fpr_col,
+        "Privacy / Sharing Consent": privacy_col,
+        "Submission Accuracy": accuracy_col,
+        "Risk / Liability Acknowledgment": liability_col,
+    }
+    if not require_fields(required):
+        return 2
+    ack_cols = [privacy_col, accuracy_col, liability_col]
 
     latest: dict[str, tuple[dt.datetime, int, dict[str, str]]] = {}
     for index, row in enumerate(rows):
-        key = norm_fpr(field(row, fpr_col)) or f"{field(row, email_col).lower()}|{field(row, name_col).lower()}" or str(index)
+        email_key = field(row, email_col).lower()
+        name_key = re.sub(r"\s+", " ", field(row, name_col).lower()).strip()
+        key = f"{email_key}|{name_key}" if email_key or name_key else str(index)
         stamp = parse_time(field(row, time_col))
         if key not in latest or (stamp, index) > (latest[key][0], latest[key][1]):
             latest[key] = (stamp, index, row)
@@ -230,7 +300,7 @@ def main() -> int:
 
         info: dict[str, str | list[str]] = {}
         if not fatal and public_key and "-----BEGIN PGP PUBLIC KEY BLOCK-----" in public_key:
-            info, error = inspect_key(public_key)
+            info, error = inspect_key(public_key, output_dir)
             if error:
                 fatal.append(f"Public key does not parse: {error}")
             else:
@@ -248,7 +318,7 @@ def main() -> int:
                     fatal.append("Primary key is expired.")
 
                 if email and not args.skip_keyserver_lookup:
-                    ks_fpr, ks_error = lookup_keyserver(email)
+                    ks_fpr, ks_error = lookup_keyserver(email, output_dir)
                     if ks_error:
                         reasons.append(ks_error)
                     elif norm_fpr(ks_fpr or "") != actual_fpr:
@@ -288,10 +358,10 @@ def main() -> int:
         '= Participants',
     ]
     for row in validated:
-        printable.append(f"== {row['name']}")
-        printable.append(f"- Email: `{row['email']}`")
-        printable.append(f"- Fingerprint: `{row['calculated_fingerprint']}`")
-        printable.append(f"- Key: `{row['key_type']}` Expires: `{row['expiration_date'] or 'none listed'}`")
+        printable.append(f"== {typst_text(row['name'])}")
+        printable.append(f"- Email: `{typst_raw(row['email'])}`")
+        printable.append(f"- Fingerprint: `{typst_raw(row['calculated_fingerprint'])}`")
+        printable.append(f"- Key: `{typst_raw(row['key_type'])}` Expires: `{typst_raw(row['expiration_date'] or 'none listed')}`")
         printable.append("- Verified: [ ]")
     printable.append("]")
     (output_dir / "printable_key_list.typ").write_text("\n".join(printable) + "\n", encoding="utf-8")

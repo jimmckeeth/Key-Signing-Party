@@ -11,10 +11,18 @@ extra_args=()
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --input)
+      if [[ $# -lt 2 ]]; then
+        echo "--input requires a path." >&2
+        exit 2
+      fi
       input_path="$2"
       shift 2
       ;;
     --output-dir)
+      if [[ $# -lt 2 ]]; then
+        echo "--output-dir requires a path." >&2
+        exit 2
+      fi
       output_dir="$2"
       shift 2
       ;;

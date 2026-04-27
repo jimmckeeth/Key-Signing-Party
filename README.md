@@ -2,6 +2,8 @@
 
 Guides, handouts, and build scripts for running an OpenPGP key signing party at Boise Code Camp.
 
+[![Six Degrees of Kevin Bacon trusting you](handouts/images/SixDegreesOfKevinBaconTrust.avif)](handouts/images/SixDegreesOfKevinBaconTrust.avif)
+
 The event model is intentionally conservative:
 
 - Attendees submit public key material before the event.
@@ -21,20 +23,70 @@ The event model is intentionally conservative:
 
 ## Handouts
 
-Typst source files live in `handouts/`:
+[Typst](https://typst.app/) source files and PDF versions live in [`handouts`](handouts):
 
-- `attendee_pre_event_guide.typ`: attendee preparation, submission, event expectations, and post-event signing guidance
-- `organizer_pre_event_guide.typ`: organizer operating procedure and validation policy
-- `attendee_keylist_topper.typ`: compact at-event rules block for the top of the printed key list
-- `organizer_day_of_checklist.typ`: one-page day-of organizer checklist
-- `typst/bcc-keysigning-style.typ`: shared visual style
+- `attendee_pre_event_guide` [typst](handouts/attendee_pre_event_guide.typ) | [pdf](handouts/attendee_pre_event_guide.pdf): attendee preparation, submission, event expectations, and post-event signing guidance
+- `organizer_pre_event_guide` [typst](handouts/organizer_pre_event_guide.typ) | [pdf](handouts/organizer_pre_event_guide.pdf): organizer operating procedure and validation policy
+- `attendee_keylist_topper` [typst](handouts/attendee_keylist_topper.typ) | [pdf](handouts/attendee_keylist_topper.pdf): compact at-event rules block for the top of the printed key list
+- `organizer_day_of_checklist` [typst](handouts/organizer_day_of_checklist.typ) | [pdf](handouts/organizer_day_of_checklist.pdf): one-page day-of organizer checklist
+- `bcc-keysigning-style` [typst](handouts/typst/bcc-keysigning-style.typ): shared visual style
 
-Generated PDFs are written next to the Typst sources:
+## Security and Privacy Posture
 
-- `attendee_pre_event_guide.pdf`
-- `organizer_pre_event_guide.pdf`
-- `attendee_keylist_topper.pdf`
-- `organizer_day_of_checklist.pdf`
+This repository treats the organizer as a coordinator, not a trust authority.
+
+- The printed list is for identity and fingerprint verification only.
+- The key bundle is a convenience file, not a trust source.
+- Full fingerprints are checked in person and checked again after import.
+- Public keys, User IDs, email addresses, and fingerprints are meant to be shared with validated event participants.
+- Private keys must never be submitted, emailed, uploaded, pasted, or shared.
+- The event list reveals participation in this specific key signing party. Every validated participant receives a copy, but attendees should keep copies private and not post or forward the list outside the event group.
+
+## Validation Workflow
+
+Validation tooling lives under:
+
+- `handouts/data/`
+- `handouts/scripts/`
+- `handouts/build/`
+
+Prerequisites: GnuPG and Python 3.
+
+Export Google Form responses to:
+
+```text
+handouts/data/form_submissions.csv
+```
+
+Run validation on Windows:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File handouts\scripts\validate_submissions.ps1
+```
+
+Run validation on Linux or macOS:
+
+```bash
+bash handouts/scripts/validate_submissions.sh
+```
+
+Generated outputs are written to `handouts/build/`:
+
+- `validated_participants.csv`
+- `needs_correction.csv`
+- `rejected_submissions.csv`
+- `validation_report.txt`
+- `all-keys.asc`
+- `printable_key_list.typ`
+
+Do not manually edit generated final artifacts. Fix source submissions and rerun validation.
+
+## References
+
+- [GnuPG usage guide](https://keys.openpgp.org/about/usage-gnupg/)
+- [GnuPG/OpenPGP FAQ](https://keys.openpgp.org/about/faq/)
+- [GnuPG OpenPGP key management](https://www.gnupg.org/documentation/manuals/gnupg/OpenPGP-Key-Management.html)
+- [GnuPG HOWTO index](https://www.gnupg.org/documentation/howtos.html)
 
 ## Build Prerequisites
 
@@ -67,39 +119,3 @@ Debian Linux or macOS:
 ```bash
 bash handouts/build_handouts.sh
 ```
-
-## Security and Privacy Posture
-
-This repository treats the organizer as a coordinator, not a trust authority.
-
-- The printed list is for identity and fingerprint verification only.
-- The key bundle is a convenience file, not a trust source.
-- Full fingerprints are checked in person and checked again after import.
-- Public keys may be distributed to event participants.
-- Private keys must never be submitted, emailed, uploaded, pasted, or shared.
-- The attendee list is not intended for public posting.
-
-## Validation Workflow
-
-The organizer guide assumes a validation workflow under:
-
-- `handouts/data/`
-- `handouts/scripts/`
-- `handouts/build/`
-
-The intended policy is:
-
-- Export form responses to `handouts/data/form_submissions.csv`.
-- Run validation scripts from `handouts/scripts/`.
-- Generate final artifacts under `handouts/build/`.
-- Do not manually edit generated final artifacts.
-
-Validation scripts are planned as event tooling. The handouts already document the validation policy so the event can be operated consistently once those scripts exist.
-
-## References
-
-- [keys.openpgp.org GnuPG usage guide](https://keys.openpgp.org/about/usage-gnupg/)
-- [keys.openpgp.org FAQ](https://keys.openpgp.org/about/faq/)
-- [GnuPG OpenPGP key management](https://www.gnupg.org/documentation/manuals/gnupg/OpenPGP-Key-Management.html)
-- [GnuPG HOWTO index](https://www.gnupg.org/documentation/howtos.html)
-- [Attending a PGP/GnuPG signing party](https://danielpecos.com/2024/01/23/attending-a-pgp-gnupg-signing-party/)

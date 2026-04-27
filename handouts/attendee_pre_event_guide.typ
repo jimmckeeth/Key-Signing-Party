@@ -200,31 +200,59 @@ Import the key bundle:
 
 #command[`gpg --import all-keys.asc`]
 
-For each person you personally verified, check the fingerprint again:
+For each person you personally verified, check the fingerprint again before signing:
 
 #command[`gpg --fingerprint KEYID`]
 
-Then sign only keys you are comfortable signing:
+Certification levels: *2* is the normal choice when you checked a government-issued photo ID and full fingerprint in person. Use *3* only if you also independently verified the person controls that email address. Use *0* or do not sign if you are unsure.
+
+Do not rely on keys.openpgp.org to distribute third-party signatures — it strips them by design. Send signed keys directly to each owner.
+
+== Option A: Manual (any platform)
+
+Sign the key:
 
 #command[`gpg --ask-cert-level --sign-key KEYID`]
 
-Certification level 2 is the normal choice when you checked a government-issued photo ID and full fingerprint in person. Use level 3 only if you also know the person or independently verified that they control the email address on the key. Choose level 0 or do not sign if you are unsure.
+Export and send directly to the key owner:
 
-Export the signed public key and send it directly to the key owner:
+#command[`gpg --armor --export KEYID > signed-KEYID.asc`]
 
-#command[`gpg --armor --export KEYID > signed-key.asc`]
+Attach `signed-KEYID.asc` to an email to the address on the key.
 
-Do not rely on keys.openpgp.org to distribute third-party signatures — it strips them by design.
+== Option B: caff (Linux, requires local MTA)
 
-#callout(
-  [Automated signing tools],
-  [
-    `caff` (from the `signing-party` package on Debian/Ubuntu) and `pius` automate this workflow and add an important privacy step: they encrypt your signature using the recipient's public key before emailing it. This proves the recipient controls the key, and it ensures the signature cannot be published without their knowledge or consent. Using these tools is the recommended approach when signing many keys.
+`caff` fetches each key, signs every UID at your chosen level, encrypts the resulting signature *to the recipient's own public key*, and mails it. Because the signature is encrypted, the recipient must prove they hold the private key to read it — and they control whether to publish it.
 
-    - #link("https://salsa.debian.org/signing-party-team/signing-party")[signing-party package (caff) — Debian Salsa]
-    - #link("https://www.phildev.net/pius/")[pius — PGP Individual UID Signer]
-  ],
-)
+Install:
+
+#command[`sudo apt install signing-party`]
+
+Create `~/.caffrc`:
+
+#command[`%CONFIG = (`\ `  keyid => ['YOUR-KEY-ID'],`\ `  email => 'you\@example.com',`\ `);`]
+
+Run against all keys you want to sign (space-separated):
+
+#command[`caff KEYID1 KEYID2 KEYID3`]
+
+caff will prompt you for the certification level for each key and UID. It requires a working local MTA (`msmtp` or `postfix` are common choices). See: #link("https://salsa.debian.org/signing-party-team/signing-party")[signing-party package on Debian Salsa]
+
+== Option C: pius (Linux/macOS/Windows, SMTP)
+
+`pius` does the same encrypt-then-email workflow as caff but uses SMTP directly, so no local MTA is needed.
+
+Install:
+
+#command[`pip3 install pius`]
+
+Sign and email in one step:
+
+#command[`pius -s YOUR-KEY-ID -m smtp.example.com -P 587 -e you\@example.com KEYID1 KEYID2`]
+
+Common flags: `-m` SMTP host, `-P` port (587 for STARTTLS, 465 for SSL), `-e` your address, `-S` to force SSL. pius will prompt for SMTP credentials and the certification level.
+
+See: #link("https://www.phildev.net/pius/")[pius — PGP Individual UID Signer]
 
 = More Information
 

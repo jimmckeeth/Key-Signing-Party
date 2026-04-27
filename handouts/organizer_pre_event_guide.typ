@@ -80,15 +80,18 @@ or on Linux/macOS:
 
 The validation script is the source of truth for final artifacts. Do not manually assemble or edit final output files. Fix source submissions and rerun validation.
 
-Expected generated files:
+Expected generated files: (from in the `handouts\build` directory)
 
-#compact-table(
-  [`handouts\build\validated_participants.csv`], [Entries approved for printing and bundle generation.],
-  [`handouts\build\needs_correction.csv`], [Entries organizers should chase before the print freeze.],
-  [`handouts\build\rejected_submissions.csv`], [Entries excluded unless corrected and revalidated before the print freeze.],
-  [`handouts\build\validation_report.txt`], [Summary of validation results and reasons.],
-  [`handouts\build\all-keys.asc`], [Post-event key bundle. Do not distribute before or during the event.],
-  [`handouts\build\printable_key_list.typ`], [Generated attendee key list source for printing.],
+#table(
+  columns: (30%, 70%),
+  inset: 5pt,
+  stroke: 0.5pt + bcc-rule,
+  [`validated_participants.csv`], [Entries approved for printing and bundle generation.],
+  [`needs_correction.csv`], [Entries organizers should chase before the print freeze.],
+  [`rejected_submissions.csv`], [Entries excluded unless corrected and revalidated before the print freeze.],
+  [`validation_report.txt`], [Summary of validation results and reasons.],
+  [`all-keys.asc`], [Post-event key bundle. Do not distribute before or during the event.],
+  [`printable_key_list.typ`], [Generated attendee key list source for printing.],
 )
 
 Validation must confirm:
@@ -139,6 +142,8 @@ Organizer packet includes:
   [ ], [ ],
   [ ], [ ],
   [ ], [ ],
+  [ ], [ ],
+  [ ], [ ],
 )
 
 = Event-Day Correction Rule
@@ -173,33 +178,18 @@ Do not distribute `all-keys.asc` before or during the event.
 
 Follow-up wording:
 
-#command[`Import the attached key bundle, compare each fingerprint against your printed sheet and event marks, and sign only keys you personally verified. If anything does not match, do not sign. Certification level 2 is the normal choice after checking government-issued photo ID and the full fingerprint in person. Use level 3 only if you also know the person or independently verified email control; choose level 0 or do not sign if you are unsure. Export signed keys and send them directly to the key owners.`]
+#command[`Import the attached key bundle (gpg --import all-keys.asc). For each person you personally verified, re-check the fingerprint (gpg --fingerprint KEYID), then sign only keys you are comfortable with. Certification level 2 is the normal choice after checking government-issued photo ID and full fingerprint in person; use level 3 only if you also independently verified email control. Do not sign if anything is unclear. Send signed keys directly to each owner — do not upload them to keyservers. See the attendee guide for manual signing steps and instructions for caff and pius, which automate the encrypt-then-email workflow.`]
 
 = Data Handling
 
 Google Form responses and validation exports may be shared only with named event co-organizers who need access for validation, printing, or event operations.
 
-Public key User IDs and fingerprints are not secrets: they are published on key directories, distributed to participants, and may remain in local OpenPGP keyrings after signing. Still, the event roster, raw form export, correction log, and attendance markings reveal a specific group association and should be treated as private event operations data.
-
-Keep final public event artifacts needed for continuity and trust management, such as the key bundle and final key list. Delete or restrict raw Google Form exports, correction logs, and working validation files after follow-up is complete unless there is a concrete operational reason to retain them. Do not sell this information, post the attendee list publicly, or intentionally share it outside registered participants and event organizers.
+The organizer may retain submitted information and final event materials indefinitely in private records, email archives, and OpenPGP keyrings for event continuity, troubleshooting, and trust-management purposes. Do not sell this information, post the attendee list publicly, or intentionally share it outside registered participants and event organizers.
 
 = Source Notes
 
-*Key signing party organization*
-- #link("https://www.first.org/pgp/PGP-GnuPG_Key_Signing_Party_v1.0.pdf")[FIRST PGP/GnuPG Key Signing Party guide (PDF) — organizer procedures and protocols]
-- #link("https://techwolf12.nl/blog/hosting-successful-gpg-keysigning-party/")[Hosting a successful GPG Keysigning Party — event flow and organizer checklist]
-- #link("https://logological.org/keysigning")[Tristan Miller's key signing party guide — hash verification protocol]
-- #link("https://danielpecos.com/2024/01/23/attending-a-pgp-gnupg-signing-party/")[Attending a PGP/GnuPG signing party — attendee perspective]
-
-*Post-event signing tools*
-- #link("https://salsa.debian.org/signing-party-team/signing-party")[signing-party package (caff) — encrypts signatures to recipient before emailing]
-- #link("https://www.phildev.net/pius/")[pius — PGP Individual UID Signer]
-
-*Keyservers*
 - #link("https://keys.openpgp.org/about/usage-gnupg/")[keys.openpgp.org GnuPG usage guide]
 - #link("https://keys.openpgp.org/about/faq/")[keys.openpgp.org FAQ]
-
-*GnuPG reference*
 - #link("https://www.gnupg.org/documentation/manuals/gnupg/OpenPGP-Key-Management.html")[GnuPG OpenPGP key management]
-- #link("https://www.gnupg.org/gph/en/manual.html")[GNU Privacy Handbook]
+- #link("https://danielpecos.com/2024/01/23/attending-a-pgp-gnupg-signing-party/")[Attending a PGP/GnuPG signing party]
 ]

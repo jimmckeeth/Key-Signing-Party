@@ -1,0 +1,4 @@
+Timestamp,Full name,Email address,ASCII-armored public key block,Full primary fingerprint,Privacy / Sharing Consent,Submission Accuracy,Risk / Liability Acknowledgment,Sign your submission
+4/27/2026 0:29:08,test,test@example.com,"-----BEGIN PGP PUBLIC KEY BLOCK-----
+test
+-----END PGP PUBLIC KEY BLOCK----- ",gpg --fingerprint you@example.com,"Yes, I consent",Confirmed,Acknowledged,

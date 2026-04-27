@@ -17,9 +17,11 @@ if (-not $OutputDir) {
     $OutputDir = Join-Path $repoRoot "handouts\build"
 }
 
-$python = Get-Command python -ErrorAction SilentlyContinue
+$python = Get-Command py -ErrorAction SilentlyContinue
+$useLauncher = $null -ne $python
+
 if (-not $python) {
-    $python = Get-Command py -ErrorAction SilentlyContinue
+    $python = Get-Command python -ErrorAction SilentlyContinue
 }
 
 if (-not $python) {
@@ -33,7 +35,17 @@ if ($SkipKeyserverLookup) {
     $validatorArgs += "--skip-keyserver-lookup"
 }
 
-if ($python.Name -eq "py.exe") {
+$versionArgs = @("--version")
+if ($useLauncher) {
+    $versionArgs = @("-3", "--version")
+}
+
+$versionOutput = & $python.Source @versionArgs 2>&1
+if ($LASTEXITCODE -ne 0 -or ($versionOutput -notmatch "Python 3\.")) {
+    throw "Python 3 is required to run validation. Found: $versionOutput"
+}
+
+if ($useLauncher) {
     & $python.Source -3 @validatorArgs
 }
 else {
