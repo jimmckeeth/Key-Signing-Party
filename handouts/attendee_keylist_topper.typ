@@ -42,8 +42,8 @@
     #enum(
       [Use current state/federal photo ID only.],
       [Check ID against *full* printed name.],
-      [Compare the _complete_ fingerprint.],
-      [Have them read it aloud.],
+      [Compare the _complete_ fingerprint with their own copy.],
+      [Have them read it aloud if needed.],
       [Mark only clear matches.],
       [*Report* any pressure to accept incomplete matches.]
     )

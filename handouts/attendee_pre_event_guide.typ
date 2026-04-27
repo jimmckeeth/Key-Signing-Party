@@ -22,6 +22,14 @@ If the Google Form does not work, email the same information to `openpgp@mckeeth
   kind: "warning",
 )
 
+= Privacy and Copies
+
+Your submitted public key, User ID, email address, and fingerprint are meant to be shared for this event. They may also already be visible through public key discovery services when someone searches for your exact email address.
+
+The event key list is different from a normal key lookup because it shows who participated in this specific key signing party. Every validated participant will receive a copy of the final key list and key bundle, and people who sign your key may keep your public identity information in their local OpenPGP keyrings.
+
+Keep your own attendee sheet, marked verification notes, and event key list private. Do not post the attendee list publicly or forward it outside the event group.
+
 = Schedule
 
 #table(
@@ -32,8 +40,8 @@ If the Google Form does not work, email the same information to `openpgp@mckeeth
   [Before submitting], [Upload to keys.openpgp.org and complete its email verification.],
   [Wed, Apr 29], [Submit the form by 11:59 PM Mountain Time.],
   [Thu, Apr 30], [Watch for organizer correction requests. Respond quickly.],
-  [Fri, May 1], [The organizer will email the final key list. Save it and run: `sha256sum keylist.pdf` (Linux/macOS) or `Get-FileHash keylist.pdf` (Windows). Write down the hash. Print your fingerprint. Bring both with your government-issued photo ID.],
-  [Sat, May 2], [Bring your ID, printed fingerprint, and computed hash. Verify hash at the start; verify identity and fingerprint in person; sign later.],
+  [Fri, May 1], [Print your own fingerprint and put it with your government-issued photo ID.],
+  [Sat, May 2], [Bring your ID and printed fingerprint. Sign your attendee sheet when you receive it. Verify in person; sign keys later.],
 )
 
 = 1. Install GnuPG
@@ -58,11 +66,11 @@ Use GnuPG 2.4 or newer if possible.
 
 If you do not already have a strong active OpenPGP key, create one with the recommended simple command:
 
-#command[`gpg --quick-generate-key "Full Legal Name <you@example.com>" future-default default 2y`]
+#command[`gpg --quick-generate-key "Full Legal Name <you@example.com>" default default 2y`]
 
 Replace `Full Legal Name` with the name on the government-issued photo ID you will bring. If you commonly use a preferred name, include it after your legal name in parentheses, for example:
 
-#command[`gpg --quick-generate-key "James McKeeth (Jim) <jim@example.com>" future-default default 2y`]
+#command[`gpg --quick-generate-key "James McKeeth (Jim) <jim@example.com>" default default 2y`]
 
 If you already have a strong key, use it instead of creating a second identity casually. If you want an advanced setup with an offline primary key, subkeys, or hardware-backed storage, read more before generating:
 
@@ -160,21 +168,20 @@ Submit the full fingerprint in the form. It must match the public key you paste.
 #checklist((
   [A current photo ID issued by a state or federal government, such as a state driver's license, state ID card, government passport, military ID, or similar government-issued photo identification.],
   [A printed copy of your own full fingerprint.],
-  [Your computed SHA-256 hash of the key list file the organizer emailed.],
 ))
 
 School IDs, workplace badges, conference badges, social media profiles, and personal recognition are not enough for this event's key verification process.
 
 = At the Event
 
-At the start of the session, the organizer will announce the SHA-256 hash of the key list file. Compare it to the hash you computed at home. If they do not match, do not mark any entries — tell an organizer immediately. This step confirms that every person in the room is working from an identical, unaltered list.
+When you receive the printed key list, sign or initial your own sheet immediately. This marks it as the copy you personally held during verification, so you can confirm after the event that your marks came from in-person checks and not a substituted sheet.
 
-When you receive the printed key list, check your own entry first. Confirm your name, email, and full fingerprint are correct. If anything is wrong, tell an organizer immediately and do not ask others to verify your key until the organizer resolves it.
+Check your own entry first. Confirm your name, email, and full fingerprint are correct. If anything is wrong, tell an organizer immediately and do not ask others to verify your key until the organizer resolves it.
 
 For each person you verify:
 1. Check their government-issued photo ID.
 2. Confirm the name reasonably matches the printed key list.
-3. Compare the complete fingerprint — read it aloud together.
+3. Compare the complete fingerprint on the printed key list with the fingerprint the participant brought or reads from their own trusted copy.
 4. Mark your sheet only if both identity and fingerprint match.
 
 You are not expected to be a counterfeit-document expert. Look for whether the ID is issued by a state or federal government, the photo reasonably matches the person, the name reasonably matches the printed list, and the ID is not obviously expired, altered, damaged, or unreadable.
@@ -201,7 +208,7 @@ Then sign only keys you are comfortable signing:
 
 #command[`gpg --ask-cert-level --sign-key KEYID`]
 
-Certification level 3 is appropriate when you carefully checked a government-issued photo ID and the full fingerprint matched. Choose a lower level, or do not sign, if you are unsure.
+Certification level 2 is the normal choice when you checked a government-issued photo ID and full fingerprint in person. Use level 3 only if you also know the person or independently verified that they control the email address on the key. Choose level 0 or do not sign if you are unsure.
 
 Export the signed public key and send it directly to the key owner:
 
@@ -221,8 +228,19 @@ Do not rely on keys.openpgp.org to distribute third-party signatures — it stri
 
 = More Information
 
+*Key management and GnuPG*
+- #link("https://www.gnupg.org/gph/en/manual.html")[GNU Privacy Handbook — beginner-friendly introduction to GnuPG]
+- #link("https://www.gnupg.org/documentation/manuals/gnupg/OpenPGP-Key-Management.html")[GnuPG OpenPGP key management]
+- #link("https://www.gnupg.org/documentation/howtos.html")[GnuPG HOWTO index]
+- #link("https://wiki.debian.org/Subkeys")[Debian Wiki: Subkeys — primary keys and subkey architecture]
+- #link("https://github.com/drduh/yubikey-guide")[drduh YubiKey Guide — offline key generation and hardware token setup]
+
+*Keyservers and key discovery*
 - #link("https://keys.openpgp.org/about/usage-gnupg/")[keys.openpgp.org GnuPG usage guide]
 - #link("https://keys.openpgp.org/about/faq/")[keys.openpgp.org FAQ]
-- #link("https://www.gnupg.org/documentation/howtos.html")[GnuPG HOWTO index]
+
+*Key signing parties*
 - #link("https://danielpecos.com/2024/01/23/attending-a-pgp-gnupg-signing-party/")[Attending a PGP/GnuPG signing party]
+- #link("https://www.first.org/pgp/PGP-GnuPG_Key_Signing_Party_v1.0.pdf")[FIRST PGP/GnuPG Key Signing Party guide (PDF)]
+- #link("https://logological.org/keysigning")[Tristan Miller's key signing party guide]
 ]
