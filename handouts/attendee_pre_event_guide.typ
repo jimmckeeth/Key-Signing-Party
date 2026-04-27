@@ -167,12 +167,14 @@ School IDs, workplace badges, conference badges, social media profiles, and pers
 
 = At the Event
 
+At the start of the session, the organizer will announce the SHA-256 hash of the key list file. Compare it to the hash you computed at home. If they do not match, do not mark any entries — tell an organizer immediately. This step confirms that every person in the room is working from an identical, unaltered list.
+
 When you receive the printed key list, check your own entry first. Confirm your name, email, and full fingerprint are correct. If anything is wrong, tell an organizer immediately and do not ask others to verify your key until the organizer resolves it.
 
 For each person you verify:
 1. Check their government-issued photo ID.
 2. Confirm the name reasonably matches the printed key list.
-3. Compare the complete fingerprint.
+3. Compare the complete fingerprint — read it aloud together.
 4. Mark your sheet only if both identity and fingerprint match.
 
 You are not expected to be a counterfeit-document expert. Look for whether the ID is issued by a state or federal government, the photo reasonably matches the person, the name reasonably matches the printed list, and the ID is not obviously expired, altered, damaged, or unreadable.
@@ -205,7 +207,17 @@ Export the signed public key and send it directly to the key owner:
 
 #command[`gpg --armor --export KEYID > signed-key.asc`]
 
-Do not rely on keys.openpgp.org to distribute third-party signatures.
+Do not rely on keys.openpgp.org to distribute third-party signatures — it strips them by design.
+
+#callout(
+  [Automated signing tools],
+  [
+    `caff` (from the `signing-party` package on Debian/Ubuntu) and `pius` automate this workflow and add an important privacy step: they encrypt your signature using the recipient's public key before emailing it. This proves the recipient controls the key, and it ensures the signature cannot be published without their knowledge or consent. Using these tools is the recommended approach when signing many keys.
+
+    - #link("https://salsa.debian.org/signing-party-team/signing-party")[signing-party package (caff) — Debian Salsa]
+    - #link("https://www.phildev.net/pius/")[pius — PGP Individual UID Signer]
+  ],
+)
 
 = More Information
 
