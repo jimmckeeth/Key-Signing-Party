@@ -25,11 +25,15 @@ The event model is intentionally conservative:
 
 [Typst](https://typst.app/) source files and PDF versions live in [`handouts`](handouts):
 
-- `attendee_pre_event_guide` [typst](handouts/attendee_pre_event_guide.typ) | [pdf](handouts/attendee_pre_event_guide.pdf): attendee preparation, submission, event expectations, and post-event signing guidance
-- `organizer_pre_event_guide` [typst](handouts/organizer_pre_event_guide.typ) | [pdf](handouts/organizer_pre_event_guide.pdf): organizer operating procedure and validation policy
-- `attendee_keylist_topper` [typst](handouts/attendee_keylist_topper.typ) | [pdf](handouts/attendee_keylist_topper.pdf): compact at-event rules block for the top of the printed key list
-- `organizer_day_of_checklist` [typst](handouts/organizer_day_of_checklist.typ) | [pdf](handouts/organizer_day_of_checklist.pdf): one-page day-of organizer checklist
-- `bcc-keysigning-style` [typst](handouts/typst/bcc-keysigning-style.typ): shared visual style
+- [attendee_pre_event_guide.pdf](handouts/attendee_pre_event_guide.pdf): attendee preparation, submission, event expectations, and post-event signing guidance ([typst source](handouts/attendee_pre_event_guide.typ))
+- [organizer_pre_event_guide.pdf](handouts/organizer_pre_event_guide.pdf): organizer operating procedure and validation policy ([typst source](handouts/organizer_pre_event_guide.typ))
+- [attendee_keylist_topper.pdf](handouts/attendee_keylist_topper.pdf): compact at-event rules block for the top of the printed key list ([typst source](handouts/attendee_keylist_topper.typ))
+- [organizer_day_of_checklist.pdf](handouts/organizer_day_of_checklist.pdf): one-page day-of organizer checklist ([typst source](handouts/organizer_day_of_checklist.typ))
+- [bcc-keysigning-style.typ](handouts/typst/bcc-keysigning-style.typ): shared visual style
+
+## Using OpenPGP
+
+[![OpenPGP usage overview — tools, workflows, and key management](usage/images/openpgp-usage-header.png)](usage/index.html)
 
 ## Security and Privacy Posture
 
