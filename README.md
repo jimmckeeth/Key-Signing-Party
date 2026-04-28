@@ -33,6 +33,8 @@ The event model is intentionally conservative:
 
 ## Using OpenPGP
 
+What to do with your OpenPGP key? I put together a [useful usage guide](usage/index.html).
+
 [![OpenPGP usage overview — tools, workflows, and key management](usage/images/openpgp-usage-header.png)](usage/index.html)
 
 ## Security and Privacy Posture
