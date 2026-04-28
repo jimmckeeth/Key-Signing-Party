@@ -104,7 +104,7 @@ Debian Linux or macOS:
 bash handouts/install_prerequisites.sh
 ```
 
-The Linux/macOS installer uses `apt-get` on Debian-like systems, Homebrew on macOS, or Cargo as a fallback.
+The Linux/macOS installer uses `apt-get` on Debian-like systems, [Homebrew](https://brew.sh/) on macOS, or [Cargo](https://doc.rust-lang.org/cargo/index.html) as a fallback.
 
 ## Build PDFs
 
