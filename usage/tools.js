@@ -61,7 +61,7 @@ const tools = [
     logo: "images/logos/android.svg",
     platforms: ["Android"],
     usages: ["Key management", "Email", "File encryption", "Key discovery", "Identity certification"],
-    summary: "Android key storage and OpenPGP operations for mobile apps such as FairEmail and K-9 Mail.",
+    summary: "Android key storage and OpenPGP operations for mobile apps such as FairEmail. Note: the project is in maintenance-only mode — security fixes are still applied but no new features are planned.",
     steps: [
       "Install OpenKeychain and create or import your key.",
       "Connect it to a compatible mail app or sharing workflow.",
@@ -74,7 +74,7 @@ const tools = [
     url: "https://email.faircode.eu/",
     platforms: ["Android"],
     usages: ["Email", "Signing & verification"],
-    summary: "Privacy-focused Android email client that can work with OpenKeychain for OpenPGP mail.",
+    summary: "Privacy-focused Android email client that delegates all OpenPGP operations to OpenKeychain. Note that OpenKeychain is now in maintenance-only mode with no new features planned.",
     steps: [
       "Configure your mail account in FairEmail.",
       "Install OpenKeychain and make sure your personal key is available there.",
@@ -82,13 +82,13 @@ const tools = [
     ]
   },
   {
-    name: "K-9 Mail",
+    name: "Thunderbird for Android",
     type: "Android email client",
     url: "https://k9mail.app/",
     logo: "images/logos/thunderbird.svg",
     platforms: ["Android"],
     usages: ["Email", "Signing & verification"],
-    summary: "Android mail client that historically pairs with OpenKeychain for OpenPGP workflows.",
+    summary: "The rebranded successor to K-9 Mail, now officially Thunderbird for Android as of October 2024. Pairs with OpenKeychain for OpenPGP workflows.",
     steps: [
       "Add your email account and install OpenKeychain.",
       "Select the OpenPGP provider in account cryptography settings.",
@@ -179,12 +179,12 @@ const tools = [
     type: "Messaging over email",
     url: "https://delta.chat/",
     platforms: ["Windows", "macOS", "Linux", "Android", "iOS"],
-    usages: ["Email", "Messaging", "Key management"],
-    summary: "Chat-style app that uses email transport and is listed by OpenPGP.org across desktop and mobile platforms.",
+    usages: ["Email", "Messaging"],
+    summary: "Chat-style app that uses email transport and Autocrypt for encryption. Does not support importing or managing a personal OpenPGP key — keys are created and managed internally by the app.",
     steps: [
       "Install the app and connect an email account.",
-      "Let the app manage chat-style secure messaging setup.",
-      "Use it when conversational flow matters more than classic email UI."
+      "Let the app manage keys automatically via Autocrypt.",
+      "Use it when conversational flow matters more than classic email UI, but note it cannot use keys from a key signing party."
     ]
   },
   {
@@ -334,6 +334,19 @@ const tools = [
     ]
   },
   {
+    name: "GnuPG",
+    type: "CLI tool",
+    url: "https://gnupg.org/",
+    platforms: ["Windows", "macOS", "Linux"],
+    usages: ["Key management", "File encryption", "Signing & verification", "Key discovery", "Identity certification"],
+    summary: "The reference OpenPGP command-line implementation. Underpins Kleopatra, Gpg4win, GPG Suite, and most Linux desktop OpenPGP tooling.",
+    steps: [
+      "Install via your package manager, Homebrew, Gpg4win (Windows), or GPG Suite (macOS).",
+      "Create a key with gpg --full-generate-key and back up both the key and a revocation certificate.",
+      "Export and share the public key, then use gpg --sign-key after fingerprint verification at the event."
+    ]
+  },
+  {
     name: "Sequoia PGP",
     type: "CLI and Rust library",
     url: "https://sequoia-pgp.org/",
@@ -394,7 +407,7 @@ const tools = [
     logo: "images/logos/python.svg",
     platforms: ["Python"],
     usages: ["Development", "File encryption", "Signing & verification"],
-    summary: "Python OpenPGP library for application-level handling of keys, messages, and signatures.",
+    summary: "Python OpenPGP library for application-level handling of keys, messages, and signatures. Note: the library has not had a release since November 2022 and has numerous open issues.",
     steps: [
       "Add the library to the Python project environment.",
       "Load keys and messages through the library API instead of parsing armored text manually.",
