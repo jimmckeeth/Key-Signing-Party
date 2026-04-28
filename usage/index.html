@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Using OpenPGP</title>
+  <meta name="description" content="A practical overview of what OpenPGP keys are used for, how to get started, and which tools fit different workflows.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="top-nav" aria-label="Page sections">
+      <a class="brand" href="#top" aria-label="Using OpenPGP home">
+        <span class="brand-mark">PGP</span>
+        <span>Using OpenPGP</span>
+      </a>
+      <div class="nav-links">
+        <a href="#contents">Contents</a>
+        <a href="#tools">Tools</a>
+        <a href="#links">Resources</a>
+        <a href="#top">Top</a>
+      </div>
+    </nav>
+
+    <section class="hero" id="top">
+      <div class="hero-copy">
+        <p class="eyebrow">Practical public-key security</p>
+        <h1>OpenPGP protects messages, files, software, and identity.</h1>
+        <p class="lede">Use a public key so others can encrypt to you and verify your signatures. Keep the private key protected so only you can decrypt, sign, certify, or authenticate.</p>
+        <div class="hero-actions" aria-label="Primary article sections">
+          <a class="button primary" href="#tools">Find a tool</a>
+          <a class="button secondary" href="#contents">Browse contents</a>
+        </div>
+      </div>
+      <figure class="hero-art">
+        <img src="images/openpgp-usage-header.png" alt="OpenPGP infographic showing encryption, signing, verification, publishing keys, email, development tools, and related platforms.">
+      </figure>
+    </section>
+  </header>
+
+  <main>
+    <section class="section contents-section" id="contents" aria-labelledby="contents-heading">
+      <div class="section-heading">
+        <p class="section-kicker">Contents</p>
+        <h2 id="contents-heading">Use this page as a hub</h2>
+        <p class="section-copy">Jump to the part you need, then come back here when you want another path through the material.</p>
+      </div>
+      <nav class="toc-grid" aria-label="Table of contents">
+        <a href="#overview"><span>01</span><strong>Overview</strong><small>What OpenPGP keys do</small></a>
+        <a href="#uses"><span>02</span><strong>Uses</strong><small>Email, files, software, identity, discovery</small></a>
+        <a href="#tools"><span>03</span><strong>Tool Chooser</strong><small>Featured tools, platform tags, usage filters</small></a>
+        <a href="#workflow"><span>04</span><strong>Workflow</strong><small>Setup, publish, verify, certify, revoke</small></a>
+        <a href="#safety"><span>05</span><strong>Safety Checks</strong><small>Private keys, fingerprints, backups, revocation</small></a>
+        <a href="#links"><span>06</span><strong>Reference Links</strong><small>Official directories, specs, and guides</small></a>
+      </nav>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+
+    <section class="section intro" id="overview" aria-labelledby="overview-heading">
+      <div>
+        <p class="section-kicker">Overview</p>
+        <h2 id="overview-heading">One key, several jobs</h2>
+      </div>
+      <div class="intro-grid">
+        <article>
+          <h3>Confidentiality</h3>
+          <p>Encrypt email, attachments, exported data, archives, and backups so only the intended private key can read them.</p>
+        </article>
+        <article>
+          <h3>Authenticity</h3>
+          <p>Sign mail, files, commits, release artifacts, and checksums so recipients can verify who produced them and whether they changed.</p>
+        </article>
+        <article>
+          <h3>Trust</h3>
+          <p>Certify that a public key belongs to a person, project, or role. A key signing party is about making those identity checks explicit.</p>
+        </article>
+      </div>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+
+    <section class="section" id="uses" aria-labelledby="uses-heading">
+      <div class="section-heading">
+        <p class="section-kicker">Usage map</p>
+        <h2 id="uses-heading">What OpenPGP is used for</h2>
+      </div>
+
+      <div class="use-grid">
+        <article class="use-card" tabindex="0" role="button" data-filter-usage="Email" aria-label="Filter tools for email and attachments">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 8h16v11H4z"></path><path d="m4 8 8 6 8-6"></path><path d="M8 8V6a4 4 0 0 1 8 0v2"></path></svg>
+          </div>
+          <h3>Email and attachments</h3>
+          <p>Protect message contents, attach encrypted files, and sign mail so recipients know it came from the expected sender.</p>
+          <ul>
+            <li>Best for sensitive conversations and shared documents.</li>
+            <li>Works best when both sides have compatible mail tooling.</li>
+          </ul>
+          <span class="card-action">Filter tools</span>
+        </article>
+
+        <article class="use-card" tabindex="0" role="button" data-filter-usage="File encryption" aria-label="Filter tools for file encryption">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"></path><path d="M14 3v6h6"></path><path d="M4 7v14h12"></path></svg>
+          </div>
+          <h3>File encryption</h3>
+          <p>Encrypt individual files, archives, backups, exports, or one-off payloads before moving them through untrusted storage.</p>
+          <ul>
+            <li>Useful for backups, data transfers, and incident response.</li>
+            <li>Always test that the intended recipient can decrypt.</li>
+          </ul>
+          <span class="card-action">Filter tools</span>
+        </article>
+
+        <article class="use-card" tabindex="0" role="button" data-filter-usage="Signing & verification" aria-label="Filter tools for software signing">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 3 4 7v6c0 5 3.5 7.5 8 8 4.5-.5 8-3 8-8V7z"></path><path d="m8 12 3 3 5-6"></path></svg>
+          </div>
+          <h3>Software signing</h3>
+          <p>Sign source releases, packages, checksums, Git tags, and commits so users can verify provenance before trusting downloads.</p>
+          <ul>
+            <li>Common in open source release workflows.</li>
+            <li>Publish verification steps next to each release.</li>
+          </ul>
+          <span class="card-action">Filter tools</span>
+        </article>
+
+        <article class="use-card" tabindex="0" role="button" data-filter-usage="Identity certification" aria-label="Filter tools for identity certification">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"></circle><circle cx="17" cy="7" r="3"></circle><circle cx="15" cy="17" r="3"></circle><path d="M10.7 7.7h3.6"></path><path d="m9.8 10.2 3.4 4.6"></path></svg>
+          </div>
+          <h3>Identity certification</h3>
+          <p>Confirm a key fingerprint against a person or organization, then certify the public key with your own key.</p>
+          <ul>
+            <li>The core activity at a key signing party.</li>
+            <li>Verify fingerprints and identities before certifying.</li>
+          </ul>
+          <span class="card-action">Filter tools</span>
+        </article>
+
+        <article class="use-card" tabindex="0" role="button" data-filter-usage="Key discovery" aria-label="Filter tools for key discovery">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"></path><path d="M3 12h18"></path><path d="M12 3c3 3 3 15 0 18"></path><path d="M12 3c-3 3-3 15 0 18"></path></svg>
+          </div>
+          <h3>Key discovery</h3>
+          <p>Make your public key discoverable through keyservers, Web Key Directory, direct sharing, or project documentation.</p>
+          <ul>
+            <li>Use verified identities where possible.</li>
+            <li>Keep old, revoked, or replaced keys clearly marked.</li>
+          </ul>
+          <span class="card-action">Filter tools</span>
+        </article>
+
+        <article class="use-card" tabindex="0" role="button" data-filter-usage="Key management" aria-label="Filter tools for authentication and key management">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><rect x="5" y="9" width="14" height="11" rx="2"></rect><path d="M8 9V6a4 4 0 0 1 8 0v3"></path><path d="m10 14 2 2 4-4"></path></svg>
+          </div>
+          <h3>Authentication</h3>
+          <p>Some OpenPGP subkeys can be used for authentication, including smart-card-backed workflows and SSH integration in some setups.</p>
+          <ul>
+            <li>Separate authentication keys from encryption keys.</li>
+            <li>Prefer hardware-backed keys for high-value access.</li>
+          </ul>
+          <span class="card-action">Filter tools</span>
+        </article>
+      </div>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+
+    <section class="section" id="tools" aria-labelledby="tools-heading">
+      <div class="section-heading">
+        <p class="section-kicker">Tool chooser</p>
+        <h2 id="tools-heading">Start with a likely fit, then filter</h2>
+        <p class="section-copy">The four cards below are the most useful first stops for a key signing party. Use the filter tags after them to narrow the full directory by platform, use case, or search text.</p>
+      </div>
+
+      <div class="tool-panel" data-tool-app>
+        <div class="featured-picks" aria-label="Suggested starting points">
+          <article class="featured-tool-card">
+            <a class="featured-link" href="https://www.thunderbird.net/">
+              <img src="images/logos/thunderbird.svg" alt="Thunderbird logo">
+              <span>
+                <strong>Thunderbird</strong>
+                <small>Desktop email with built-in OpenPGP support.</small>
+              </span>
+            </a>
+            <span class="pick-label">Most people</span>
+          </article>
+          <article class="featured-tool-card">
+            <a class="featured-link" href="https://apps.kde.org/kleopatra/">
+              <img src="images/logos/kde.svg" alt="KDE logo">
+              <span>
+                <strong>Kleopatra</strong>
+                <small>Visual certificate management through Gpg4win or KDE.</small>
+              </span>
+            </a>
+            <span class="pick-label">Windows keys</span>
+          </article>
+          <article class="featured-tool-card">
+            <a class="featured-link" href="https://www.openkeychain.org/">
+              <img src="images/logos/android.svg" alt="Android logo">
+              <span>
+                <strong>OpenKeychain</strong>
+                <small>Android key storage and sharing.</small>
+              </span>
+            </a>
+            <span class="pick-label">Android</span>
+          </article>
+          <article class="featured-tool-card">
+            <a class="featured-link" href="https://sequoia-pgp.org/">
+              <span class="logo-fallback">SQ</span>
+              <span>
+                <strong>Sequoia PGP</strong>
+                <small>Modern Rust implementation and tooling.</small>
+              </span>
+            </a>
+            <span class="pick-label">Developers</span>
+          </article>
+        </div>
+
+        <div class="filter-row" aria-label="OpenPGP tool filters">
+          <div class="filter-group">
+            <div class="filter-heading">
+              <span>Usage tags</span>
+              <small>Click any tag to toggle it.</small>
+            </div>
+            <div class="filter-tags" id="usageTags"></div>
+          </div>
+          <div class="filter-group">
+            <div class="filter-heading">
+              <span>Platform tags</span>
+              <small>Combine tags to narrow the cards.</small>
+            </div>
+            <div class="filter-tags" id="platformTags"></div>
+          </div>
+          <label class="search-label">
+            <span>Search</span>
+            <input id="toolSearch" type="search" placeholder="Tool, platform, use, or note">
+          </label>
+          <button class="button secondary reset-button" type="button" id="resetFilters">Reset filters</button>
+        </div>
+
+        <div class="tool-stats" aria-live="polite">
+          <strong id="toolCount">0 tools</strong>
+          <span id="activeFilters">Showing everything</span>
+        </div>
+
+        <div class="tool-grid" id="toolGrid"></div>
+        <p class="empty-state" id="emptyState" hidden>No tools match those filters yet. Try a broader platform or usage.</p>
+      </div>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+
+    <section class="section workflow-section" id="workflow" aria-labelledby="workflow-heading">
+      <div class="section-heading">
+        <p class="section-kicker">Instructions</p>
+        <h2 id="workflow-heading">A practical OpenPGP path</h2>
+        <p class="section-copy">This is a learning path with real next clicks, not a closed checklist. Pick a tool first, then use these links to understand each decision.</p>
+      </div>
+
+      <ol class="timeline">
+        <li>
+          <span class="step-number">1</span>
+          <div>
+            <h3>Choose the tool that matches where you work</h3>
+            <p>Start with the <a href="#tools">tool chooser</a>, then compare the broader <a href="https://www.openpgp.org/software/">OpenPGP software directory</a> if your platform is unusual.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-number">2</span>
+          <div>
+            <h3>Create or import your OpenPGP certificate</h3>
+            <p>Thunderbird users can follow the <a href="https://support.mozilla.org/en-US/kb/openpgp-thunderbird-howto-and-faq">Thunderbird OpenPGP FAQ</a>. Others should use their tool's key creation or import guide, then back up the secret key and revocation plan.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-number">3</span>
+          <div>
+            <h3>Publish or share the public key</h3>
+            <p>Use <a href="https://keys.openpgp.org/about/usage/">keys.openpgp.org</a>, direct public-key export, or <a href="https://keys.openpgp.org/about/usage-wkd/">Web Key Directory</a> for a domain-based setup.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-number">4</span>
+          <div>
+            <h3>Verify fingerprints before trusting keys</h3>
+            <p>At an event, compare the full fingerprint and identity proof before certifying. For background, read OpenPGP's overview of certificates and webs of trust in the <a href="https://www.openpgp.org/about/">OpenPGP overview</a>.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-number">5</span>
+          <div>
+            <h3>Use the key for the actual job</h3>
+            <p>Email users can send signed mail first, then encrypted mail. Developers can use <a href="https://git-scm.com/book/en/v2/Git-Tools-Signing-Your-Work">Git signing documentation</a>, the <a href="https://www.openpgp.org/software/developer/">developer library directory</a>, or their release system's package-signing guide.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-number">6</span>
+          <div>
+            <h3>Retire keys cleanly</h3>
+            <p>Set expiration dates, extend them intentionally, and publish revocations when a key is lost, compromised, replaced, or no longer represents the identity. Check how your chosen tool handles revocation before the event.</p>
+          </div>
+        </li>
+      </ol>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+
+    <section class="section safety" id="safety" aria-labelledby="safety-heading">
+      <div class="section-heading">
+        <p class="section-kicker">Safety checks</p>
+        <h2 id="safety-heading">Habits that prevent painful mistakes</h2>
+      </div>
+      <div class="check-grid">
+        <article>
+          <h3>Protect the private key</h3>
+          <p>Use a strong passphrase, keep backups encrypted, and consider a hardware token for long-lived or high-trust keys.</p>
+        </article>
+        <article>
+          <h3>Check the full fingerprint</h3>
+          <p>Short key IDs are not enough. Compare the complete fingerprint before certifying, trusting, or publishing instructions.</p>
+        </article>
+        <article>
+          <h3>Test before the important moment</h3>
+          <p>Send a signed test message, decrypt a test file, and confirm that your public key is discoverable before the event.</p>
+        </article>
+        <article>
+          <h3>Plan revocation up front</h3>
+          <p>Know how you will revoke a lost or compromised key. A revocation plan turns a bad day into a manageable rotation.</p>
+        </article>
+      </div>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+
+    <section class="section resources" id="links" aria-labelledby="links-heading">
+      <div class="section-heading">
+        <p class="section-kicker">Links</p>
+        <h2 id="links-heading">Useful references</h2>
+      </div>
+
+      <div class="resource-list">
+        <a href="https://www.openpgp.org/about/">
+          <span>OpenPGP overview</span>
+          <small>What the standard is and why it exists</small>
+        </a>
+        <a href="https://www.openpgp.org/software/">
+          <span>OpenPGP software directory</span>
+          <small>Email tools across desktop, mobile, browser, and webmail</small>
+        </a>
+        <a href="https://www.openpgp.org/software/developer/">
+          <span>OpenPGP developer libraries</span>
+          <small>Libraries and developer-oriented tooling</small>
+        </a>
+        <a href="https://keys.openpgp.org/about/usage/">
+          <span>keys.openpgp.org usage guide</span>
+          <small>Search, upload, verify, manage, and discover public keys</small>
+        </a>
+        <a href="https://keys.openpgp.org/about/usage-wkd/">
+          <span>Web Key Directory</span>
+          <small>Domain-based key discovery for email addresses</small>
+        </a>
+        <a href="https://www.rfc-editor.org/rfc/rfc9580.html">
+          <span>RFC 9580</span>
+          <small>The current OpenPGP specification</small>
+        </a>
+        <a href="https://support.mozilla.org/en-US/kb/openpgp-thunderbird-howto-and-faq">
+          <span>Thunderbird OpenPGP FAQ</span>
+          <small>Setup, import, export, backup, and tool-specific caveats</small>
+        </a>
+        <a href="https://git-scm.com/book/en/v2/Git-Tools-Signing-Your-Work">
+          <span>Git signing documentation</span>
+          <small>How OpenPGP fits signed commits and tags</small>
+        </a>
+      </div>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Prepared for Boise Code Camp OpenPGP key signing party materials. Last reviewed April 27, 2026.</p>
+  </footer>
+  <script src="tools.js"></script>
+</body>
+</html>
