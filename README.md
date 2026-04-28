@@ -1,6 +1,6 @@
 # Boise Code Camp OpenPGP Key Signing Party
 
-Guides, handouts, and build scripts for running an OpenPGP key signing party at [Boise Code Camp](https://boisecodecamp.com/#/) (Free event, Saturday, May 2nd, 2026).
+Guides, handouts, and build scripts for running an OpenPGP key signing party at [Boise Code Camp](https://boisecodecamp.com/#/) _(Free event, Saturday, May 2nd, 2026)_.
 
 [![Six Degrees of Kevin Bacon trusting you](handouts/images/SixDegreesOfKevinBaconTrust.avif)](handouts/images/SixDegreesOfKevinBaconTrust.avif)
 
