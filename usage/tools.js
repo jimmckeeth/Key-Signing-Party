@@ -175,19 +175,6 @@ const tools = [
     ]
   },
   {
-    name: "Delta Chat",
-    type: "Messaging over email",
-    url: "https://delta.chat/",
-    platforms: ["Windows", "macOS", "Linux", "Android", "iOS"],
-    usages: ["Email", "Messaging"],
-    summary: "Chat-style app that uses email transport and Autocrypt for encryption. Does not support importing or managing a personal OpenPGP key — keys are created and managed internally by the app.",
-    steps: [
-      "Install the app and connect an email account.",
-      "Let the app manage keys automatically via Autocrypt.",
-      "Use it when conversational flow matters more than classic email UI, but note it cannot use keys from a key signing party."
-    ]
-  },
-  {
     name: "Claws Mail",
     type: "Email client",
     url: "https://www.claws-mail.org/",
