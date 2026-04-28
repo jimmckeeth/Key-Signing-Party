@@ -10,6 +10,7 @@ Event materials for running an OpenPGP key signing party at Boise Code Camp (nex
 - **A shared style library** (`handouts/typst/bcc-keysigning-style.typ`) — shared layout, colors, and components used by all handouts
 - **Build scripts** — PowerShell and bash wrappers around `typst compile`
 - **Reference documents** (`DefinitiveOpenPGP.*`) — OpenPGP best-practices reference in AsciiDoc, Markdown, and Typst formats
+- **Usage page** (`usage/index.html`) — static HTML tool-chooser listing OpenPGP clients, key managers, libraries, and services; driven by `usage/tools.js`
 
 ## Building the Handouts
 

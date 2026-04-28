@@ -31,6 +31,10 @@ The event model is intentionally conservative:
 - `organizer_day_of_checklist` [typst](handouts/organizer_day_of_checklist.typ) | [pdf](handouts/organizer_day_of_checklist.pdf): one-page day-of organizer checklist
 - `bcc-keysigning-style` [typst](handouts/typst/bcc-keysigning-style.typ): shared visual style
 
+## Using OpenPGP
+
+[![OpenPGP usage overview — tools, workflows, and key management](usage/images/openpgp-usage-header.png)](usage/index.html)
+
 ## Security and Privacy Posture
 
 This repository treats the organizer as a coordinator, not a trust authority.
