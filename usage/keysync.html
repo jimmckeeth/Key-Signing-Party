@@ -1,0 +1,1073 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GPG + SSH Key Sync — Using OpenPGP</title>
+  <meta name="description" content="Step-by-step guide to using the same OpenPGP key for GPG operations, SSH authentication, and GitHub on both Windows and Linux.">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ── page-specific additions ── */
+
+    pre {
+      margin: 0;
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: #f3f6f5;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+
+    pre code {
+      padding: 0;
+      background: none;
+      font-size: 0.9rem;
+    }
+
+    .step-block {
+      display: grid;
+      gap: 12px;
+    }
+
+    .step-block + .step-block {
+      margin-top: 32px;
+      padding-top: 32px;
+      border-top: 1px solid var(--line);
+    }
+
+    .step-heading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 4px;
+      font-size: 1.18rem;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--ink);
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 900;
+    }
+
+    .step-body {
+      display: grid;
+      gap: 10px;
+    }
+
+    .step-body p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .platform-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .platform-block {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      display: grid;
+      gap: 10px;
+    }
+
+    .platform-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 850;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .platform-label.linux {
+      background: #eef5e9;
+      color: #3d642d;
+    }
+
+    .platform-label.windows {
+      background: #eef3fb;
+      color: #234d88;
+    }
+
+    .platform-label.both {
+      background: #eaf4f2;
+      color: var(--teal);
+    }
+
+    .platform-block p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .platform-block h4 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .callout {
+      padding: 14px 18px;
+      border-radius: var(--radius);
+      border-left: 3px solid var(--teal);
+      background: rgba(8, 125, 121, 0.06);
+      display: grid;
+      gap: 5px;
+    }
+
+    .callout.warn {
+      border-left-color: var(--amber);
+      background: rgba(181, 106, 19, 0.06);
+    }
+
+    .callout.info {
+      border-left-color: var(--blue);
+      background: rgba(35, 88, 166, 0.05);
+    }
+
+    .callout strong {
+      font-size: 0.88rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--teal);
+    }
+
+    .callout.warn strong { color: var(--amber); }
+    .callout.info strong { color: var(--blue); }
+
+    .callout p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .concept-card {
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+
+    .concept-card h3 {
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+    }
+
+    .concept-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .concept-card .label {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 2px 9px;
+      border-radius: 999px;
+      background: #eef3f2;
+      color: #42505b;
+      font-size: 0.74rem;
+      font-weight: 800;
+    }
+
+    .troubleshoot-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .trouble-item {
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      display: grid;
+      gap: 8px;
+    }
+
+    .trouble-item h3 {
+      margin: 0;
+      font-size: 1.02rem;
+    }
+
+    .trouble-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .section-intro {
+      max-width: 72ch;
+      color: var(--muted);
+      font-size: 1.04rem;
+      margin: 0 0 28px;
+    }
+
+    @media (max-width: 920px) {
+      .concept-grid,
+      .platform-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="top-nav" aria-label="Page sections">
+      <a class="brand" href="index.html" aria-label="Using OpenPGP home">
+        <span class="brand-mark">PGP</span>
+        <span>Using OpenPGP</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html">← Hub</a>
+        <a href="#contents">Contents</a>
+        <a href="#linux">Linux</a>
+        <a href="#windows">Windows</a>
+        <a href="#github">GitHub</a>
+        <a href="#links">References</a>
+      </div>
+    </nav>
+
+    <section class="hero" id="top">
+      <div class="hero-copy">
+        <p class="eyebrow">Key reuse across protocols</p>
+        <h1>One key. SSH, GPG, and Git.</h1>
+        <p class="lede">Your OpenPGP authentication subkey can act as an SSH key. One key pair covers server login, commit signing, and GitHub — on both Windows and Linux.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#authkey">Create auth subkey</a>
+          <a class="button secondary" href="#contents">Browse guide</a>
+        </div>
+      </div>
+    </section>
+  </header>
+
+  <main>
+
+    <!-- CONTENTS -->
+    <section class="section contents-section" id="contents" aria-labelledby="contents-heading">
+      <div class="section-heading">
+        <p class="section-kicker">Contents</p>
+        <h2 id="contents-heading">What this guide covers</h2>
+        <p class="section-copy">Follow in order for a first setup, or jump to the section you need.</p>
+      </div>
+      <nav class="toc-grid" aria-label="Table of contents">
+        <a href="#concept"><span>01</span><strong>How it works</strong><small>Auth subkey, gpg-agent, fingerprint vs keygrip</small></a>
+        <a href="#prereqs"><span>02</span><strong>Prerequisites</strong><small>What to install on each platform</small></a>
+        <a href="#authkey"><span>03</span><strong>Auth subkey</strong><small>Add an [A] subkey to your existing key</small></a>
+        <a href="#linux"><span>04</span><strong>Linux setup</strong><small>gpg-agent SSH mode, SSH_AUTH_SOCK</small></a>
+        <a href="#windows"><span>05</span><strong>Windows setup</strong><small>Gpg4win, OpenSSH pipe, WSL bridge</small></a>
+        <a href="#putty"><span>06</span><strong>PuTTY &amp; WinSCP</strong><small>Pageant protocol, WinSCP agent auth</small></a>
+        <a href="#github"><span>07</span><strong>GitHub</strong><small>SSH auth key + GPG signing key</small></a>
+        <a href="#gitsigning"><span>08</span><strong>Git signing</strong><small>Commit and tag signing config</small></a>
+        <a href="#sync"><span>09</span><strong>Sync machines</strong><small>Move key material, set trust, verify</small></a>
+        <a href="#troubleshoot"><span>10</span><strong>Troubleshooting</strong><small>Common failures and fixes</small></a>
+      </nav>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section" id="concept" aria-labelledby="concept-heading">
+      <div class="section-heading">
+        <p class="section-kicker">Architecture</p>
+        <h2 id="concept-heading">How it works</h2>
+      </div>
+      <p class="section-intro">OpenPGP keys are structured as a primary (master) key plus subkeys, each with a specific capability flag: <strong>[S]</strong>ign, <strong>[E]</strong>ncrypt, <strong>[A]</strong>uthenticate, or <strong>[C]</strong>ertify. The <code>[A]</code> authenticate subkey is the bridge to SSH. When <code>gpg-agent</code> has SSH support enabled, it presents auth subkeys to any tool that speaks the SSH agent protocol — including <code>ssh</code>, <code>git</code>, VS Code remote, and GitHub CLI.</p>
+
+      <div class="concept-grid">
+        <div class="concept-card">
+          <span class="label">Primary key [C]</span>
+          <h3>Certify only</h3>
+          <p>Signs other keys and User IDs. Keep this offline when possible. Its fingerprint is your permanent identity.</p>
+        </div>
+        <div class="concept-card">
+          <span class="label">Subkey [S]</span>
+          <h3>Signing</h3>
+          <p>Signs documents, commits, tags, and email. This is what GitHub shows as "Verified" on commits.</p>
+        </div>
+        <div class="concept-card">
+          <span class="label">Subkey [E]</span>
+          <h3>Encryption</h3>
+          <p>Decrypts messages and files encrypted to your public key. Never used for SSH.</p>
+        </div>
+        <div class="concept-card">
+          <span class="label">Subkey [A]</span>
+          <h3>Authentication ← SSH</h3>
+          <p>The subkey that becomes your SSH key. <code>gpg-agent</code> exposes it over the SSH agent socket.</p>
+        </div>
+        <div class="concept-card">
+          <span class="label">gpg-agent</span>
+          <h3>The bridge</h3>
+          <p>Acts as both a GPG agent and an SSH agent when <code>enable-ssh-support</code> is set. One daemon, two sockets.</p>
+        </div>
+        <div class="concept-card">
+          <span class="label">sshcontrol</span>
+          <h3>Which keys are exposed</h3>
+          <p>Only keygrips listed in <code>~/.gnupg/sshcontrol</code> are offered to SSH clients. You control the list.</p>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top:20px;">
+        <strong>Key point</strong>
+        <p>You do not convert a GPG key into an SSH key. You add an auth subkey and teach <a href="https://www.gnupg.org/documentation/manuals/gnupg/Invoking-GPG_002dAGENT.html"><code>gpg-agent</code></a> to speak <a href="https://www.openssh.com/specs.html">SSH agent protocol</a>. The private key material never leaves <code>gpg-agent</code>.</p>
+      </div>
+
+      <div style="margin-top:24px;">
+        <h3 style="margin:0 0 14px;font-size:1.15rem;">Fingerprint vs. keygrip — what's the difference?</h3>
+        <div class="platform-row">
+          <div class="platform-block">
+            <h4>Fingerprint</h4>
+            <p>A hash of the full OpenPGP public key packet. This is your <strong>external identity</strong> — what you share with people, publish to <a href="https://keys.openpgp.org/">keyservers</a>, and verify in person at a key signing party. Every subkey has its own fingerprint, but you normally refer to the primary key's fingerprint.</p>
+            <pre><code># Primary key fingerprint (40 hex chars):
+7DDC4865B5008DDE36C6B9A4FB113D111B055C9B
+
+# How gpg displays it:
+gpg -K
+sec  ed25519 2026-04-27 [C]
+     7DDC4865...1B055C9B</code></pre>
+          </div>
+          <div class="platform-block">
+            <h4>Keygrip</h4>
+            <p>An internal handle derived from the raw key <em>parameters</em> (not the full OpenPGP packet). Used by <code>gpg-agent</code> to locate key material in its keybox and to decide which keys to expose over SSH via <code>sshcontrol</code>. The keygrip of the same mathematical key is identical across different GnuPG versions and machines.</p>
+            <pre><code># Auth subkey keygrip (40 hex chars):
+57EEA3A4A6025A3BBFBAEC28ADD2ACA995BC185B
+
+# How gpg displays it:
+gpg --with-keygrip -K
+ssb  ed25519 [A]
+     Keygrip = 57EEA3A4...95BC185B</code></pre>
+          </div>
+        </div>
+        <div class="callout info" style="margin-top:12px;">
+          <strong>Rule of thumb</strong>
+          <p>Use the <strong>fingerprint</strong> in commands that act on a key (<code>gpg --export</code>, <code>git config user.signingkey</code>, keyserver lookups). Use the <strong>keygrip</strong> only when configuring what the agent exposes — specifically in <code>sshcontrol</code>. You will rarely need a keygrip outside of that one file.</p>
+        </div>
+      </div>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+
+    <!-- PREREQUISITES -->
+    <section class="section" id="prereqs" aria-labelledby="prereqs-heading">
+      <div class="section-heading">
+        <p class="section-kicker">Setup</p>
+        <h2 id="prereqs-heading">Prerequisites</h2>
+      </div>
+      <div class="platform-row">
+        <div class="platform-block">
+          <span class="platform-label linux">Linux / macOS</span>
+          <h4>GnuPG 2.2 or later</h4>
+          <p>Most distributions ship a recent version. Verify with <code>gpg --version</code>. On macOS, install via <a href="https://brew.sh/">Homebrew</a>: <code>brew install gnupg</code>.</p>
+          <pre><code>gpg --version
+# Should show GnuPG 2.2.x or 2.4.x</code></pre>
+        </div>
+        <div class="platform-block">
+          <span class="platform-label windows">Windows</span>
+          <h4>Gpg4win (includes GnuPG + Kleopatra)</h4>
+          <p>Download from <a href="https://www.gpg4win.org/">gpg4win.org</a>. Includes GnuPG, Kleopatra (GUI), and the agent. Prefer version 4.3.0 or later for better OpenSSH pipe support.</p>
+          <pre><code>gpg --version
+# Run in PowerShell or CMD after install</code></pre>
+        </div>
+      </div>
+      <div style="margin-top:14px;" class="platform-row">
+        <div class="platform-block">
+          <span class="platform-label both">Both platforms</span>
+          <h4>An existing OpenPGP key</h4>
+          <p>You need at least a primary key with a User ID. If you do not have one yet, create one with <code>gpg --full-generate-key</code> and choose Ed25519. See the <a href="index.html#workflow">workflow guide</a> for a complete setup path.</p>
+        </div>
+        <div class="platform-block">
+          <span class="platform-label windows">Windows + WSL</span>
+          <h4>Optional: WSL2 bridge tools</h4>
+          <p>To share the Windows <code>gpg-agent</code> with WSL2, you will need <a href="https://github.com/jstarks/npiperelay/releases">npiperelay.exe</a> on your Windows PATH and <code>socat</code> inside WSL (<code>sudo apt install socat</code>). Or run an independent GnuPG in WSL (simpler).</p>
+        </div>
+      </div>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+
+    <!-- CREATE AUTH SUBKEY -->
+    <section class="section" id="authkey" aria-labelledby="authkey-heading">
+      <div class="section-heading">
+        <p class="section-kicker">Step zero</p>
+        <h2 id="authkey-heading">Add an authentication subkey</h2>
+      </div>
+      <p class="section-intro">If your key already has an <code>[A]</code> subkey, skip to the platform sections. Run <code>gpg -K --with-keygrip</code> and look for <code>[A]</code> in the subkey list.</p>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">1</span>Open the key editor</h3>
+        <div class="step-body">
+          <p>Replace <code>FINGERPRINT</code> with your full 40-character primary key fingerprint. The <code>--expert</code> flag unlocks the capability-selection menu.</p>
+          <pre><code>gpg --expert --edit-key FINGERPRINT</code></pre>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">2</span>Add the subkey</h3>
+        <div class="step-body">
+          <p>At the <code>gpg&gt;</code> prompt, enter <code>addkey</code>. Follow the menu to select an algorithm and capabilities:</p>
+          <pre><code>gpg> addkey
+Please select what kind of key you want:
+   (3) DSA (sign only)
+   (4) RSA (sign only)
+   (5) Elgamal (encrypt only)
+   (6) RSA (encrypt or sign)
+   (7) DSA (set your own capabilities)
+   (8) RSA (set your own capabilities)
+  (10) ECC (sign only)
+  (11) ECC (set your own capabilities)   ← choose this
+  (12) ECC (encrypt only)
+  (13) Existing key
+Your selection? 11</code></pre>
+          <p>Toggle capabilities so only <strong>Authenticate</strong> is on. Sign and Encrypt should be off:</p>
+          <pre><code>Possible actions for this ECC key: Sign Authenticate
+Current allowed actions: Sign
+
+   (S) Toggle the sign capability
+   (A) Toggle the authenticate capability
+   (Q) Finished
+
+Your selection? S   # turn Sign OFF
+Your selection? A   # turn Authenticate ON
+Your selection? Q   # done</code></pre>
+          <p>Choose the curve. Ed25519 is recommended:</p>
+          <pre><code>Please select which elliptic curve you want:
+   (1) Curve 25519 *default*
+   (2) Curve 448
+   (3) NIST P-256
+   ...
+Your selection? 1</code></pre>
+          <p>Set an expiry date (1–2 years is reasonable). It can be extended later without changing the key material.</p>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">3</span>Save and verify</h3>
+        <div class="step-body">
+          <pre><code>gpg> save</code></pre>
+          <p>Confirm the new subkey appears:</p>
+          <pre><code>gpg --with-keygrip -K FINGERPRINT</code></pre>
+          <p>You should see an <code>ssb</code> line tagged <code>[A]</code> with its own <code>Keygrip =</code> line. Copy that keygrip — you will need it shortly.</p>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <strong>Backup first</strong>
+        <p>Adding a subkey changes your key. Export and back up your secret key before and after: <code>gpg --armor --export-secret-keys FINGERPRINT &gt; mykey-backup.asc</code>. Store the file encrypted, offline.</p>
+      </div>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+
+    <!-- LINUX -->
+    <section class="section" id="linux" aria-labelledby="linux-heading">
+      <div class="section-heading">
+        <p class="section-kicker">Platform</p>
+        <h2 id="linux-heading"><span class="platform-label linux" style="font-size:0.6em;vertical-align:middle;margin-right:8px;">Linux</span>Enable gpg-agent SSH mode</h2>
+      </div>
+      <p class="section-intro">These steps work on Debian, Ubuntu, Fedora, Arch, and macOS. They configure the already-running <code>gpg-agent</code> to also handle SSH authentication requests.</p>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">1</span>Enable SSH support in gpg-agent</h3>
+        <div class="step-body">
+          <pre><code>mkdir -p ~/.gnupg
+echo "enable-ssh-support" >> ~/.gnupg/gpg-agent.conf
+chmod 700 ~/.gnupg</code></pre>
+          <p>Restart the agent to apply the change:</p>
+          <pre><code>gpgconf --kill gpg-agent
+# gpg-agent restarts automatically on next gpg use</code></pre>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">2</span>Set SSH_AUTH_SOCK in your shell</h3>
+        <div class="step-body">
+          <p>Add this to your <code>~/.bashrc</code>, <code>~/.zshrc</code>, or <code>~/.profile</code>. It replaces the default ssh-agent socket with gpg-agent's SSH socket:</p>
+          <pre><code>export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)</code></pre>
+          <div class="callout warn">
+            <strong>Disable the default ssh-agent</strong>
+            <p>If your desktop environment or <code>~/.bashrc</code> already starts <code>ssh-agent</code>, disable it. Having two agents fighting over <code>SSH_AUTH_SOCK</code> causes unpredictable failures. On GNOME, run <code>gnome-session-properties</code> and disable the SSH agent launcher if present.</p>
+          </div>
+          <p>Reload your shell config: <code>source ~/.bashrc</code></p>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">3</span>Register the auth subkey</h3>
+        <div class="step-body">
+          <p>Get the keygrip of your <code>[A]</code> subkey:</p>
+          <pre><code>gpg --with-keygrip -K FINGERPRINT
+# Look for the ssb line tagged [A] and its Keygrip value
+# Example Keygrip: A3B4C5D6E7F8...</code></pre>
+          <p>Add it to <code>sshcontrol</code> (one keygrip per line):</p>
+          <pre><code>echo "A3B4C5D6E7F8..." >> ~/.gnupg/sshcontrol</code></pre>
+          <p>The optional second column is a cache TTL in seconds. Leave it empty or set to <code>0</code> to always require passphrase confirmation.</p>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">4</span>Verify the key is available to SSH</h3>
+        <div class="step-body">
+          <pre><code>ssh-add -L
+# Should print your public key in SSH format, e.g.:
+# sk-ssh-ed25519@openssh.com AAAA... (none)</code></pre>
+          <p>If you see your key, <code>gpg-agent</code> is acting as the SSH agent. If the list is empty, check that the keygrip is in <code>~/.gnupg/sshcontrol</code> and the agent has been restarted.</p>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">5</span>Export the SSH public key</h3>
+        <div class="step-body">
+          <p>This exports the auth subkey in OpenSSH public key format, ready to paste into <code>authorized_keys</code> or GitHub:</p>
+          <pre><code>gpg --export-ssh-key FINGERPRINT</code></pre>
+          <p>Save to a file for convenience:</p>
+          <pre><code>gpg --export-ssh-key FINGERPRINT > ~/.ssh/id_gpg_auth.pub
+cat ~/.ssh/id_gpg_auth.pub</code></pre>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">6</span>Add to remote authorized_keys</h3>
+        <div class="step-body">
+          <p>Copy your SSH public key to a server:</p>
+          <pre><code>ssh-copy-id -i ~/.ssh/id_gpg_auth.pub user@server
+# or manually:
+cat ~/.ssh/id_gpg_auth.pub | ssh user@server "cat >> ~/.ssh/authorized_keys"</code></pre>
+          <p>Test the connection:</p>
+          <pre><code>ssh user@server</code></pre>
+          <p>The agent will prompt for your GPG passphrase on first use (and cache it according to <code>default-cache-ttl</code> in <code>gpg-agent.conf</code>).</p>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <strong>systemd users</strong>
+        <p>On systemd-based systems, you can manage <code>gpg-agent</code> as a user service. The socket path is stable: <code>gpgconf --list-dirs agent-ssh-socket</code> always returns the right path regardless of session type.</p>
+      </div>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+
+    <!-- WINDOWS -->
+    <section class="section" id="windows" aria-labelledby="windows-heading">
+      <div class="section-heading">
+        <p class="section-kicker">Platform</p>
+        <h2 id="windows-heading"><span class="platform-label windows" style="font-size:0.6em;vertical-align:middle;margin-right:8px;">Windows</span>Enable gpg-agent SSH mode</h2>
+      </div>
+      <p class="section-intro">Windows uses named pipes instead of Unix sockets, and GnuPG 2.4+ supports the Windows OpenSSH named pipe directly. The steps below cover both native Windows OpenSSH and WSL2.</p>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">1</span>Create gpg-agent.conf</h3>
+        <div class="step-body">
+          <p>GnuPG does not create this file automatically. The directory exists after installing Gpg4win, but the file must be created manually. Run this in PowerShell to create it with the required settings in one step:</p>
+          <pre><code>@"
+enable-ssh-support
+enable-win32-openssh-support
+"@ | Set-Content "$env:APPDATA\gnupg\gpg-agent.conf" -Encoding UTF8</code></pre>
+          <p>To verify the file was created correctly:</p>
+          <pre><code>Get-Content "$env:APPDATA\gnupg\gpg-agent.conf"</code></pre>
+          <p><code>enable-win32-openssh-support</code> creates a named pipe at <code>\\.\pipe\openssh-ssh-agent</code> that the Windows OpenSSH client reads automatically. Requires GnuPG 2.4.0 or later (included in Gpg4win 4.2+).</p>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">2</span>Register the auth subkey</h3>
+        <div class="step-body">
+          <p>Get the keygrip of your <code>[A]</code> subkey. Pass your primary key fingerprint — gpg will list all subkeys:</p>
+          <pre><code>gpg --with-keygrip -K 7DDC4865...1B055C9B
+
+sec#  ed25519 2026-04-27 [C] [expires: 2028-04-26]
+      7DDC4865B5008DDE36C6B9A4FB113D111B055C9B
+      Keygrip = 1BE21959...5FCF399B
+uid           [ultimate] James Aaron McKeeth &lt;j**@m******.org&gt;
+ssb   ed25519 2026-04-27 [S] [expires: 2027-04-27]
+      Keygrip = 0EAFF66B...3451B2EC
+ssb   cv25519 2026-04-27 [E] [expires: 2027-04-27]
+      Keygrip = BE8C2DE2...46905506
+ssb   ed25519 2026-04-27 [A] [expires: 2027-04-27]
+      Keygrip = 57EEA3A4...95BC185B   ← copy this one</code></pre>
+          <p>The <code>[A]</code> subkey's keygrip is what goes in <code>sshcontrol</code>. Add it (the command creates the file if it does not exist):</p>
+          <pre><code>Add-Content "$env:APPDATA\gnupg\sshcontrol" "57EEA3A4A6025A3BBFBAEC28ADD2ACA995BC185B"</code></pre>
+          <p>Verify: <code>Get-Content "$env:APPDATA\gnupg\sshcontrol"</code> should show exactly one keygrip.</p>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">3</span>Restart the agent and verify</h3>
+        <div class="step-body">
+          <div class="callout warn" style="margin-bottom:12px;">
+            <strong>Disable the Windows OpenSSH Authentication Agent service first</strong>
+            <p>If the built-in <code>OpenSSH Authentication Agent</code> Windows service is running, it owns the <code>\\.\pipe\openssh-ssh-agent</code> named pipe and blocks gpg-agent from using it. Open <strong>Services</strong> (<code>Win+R</code> → <code>services.msc</code>), find <strong>OpenSSH Authentication Agent</strong>, set Startup type to <strong>Disabled</strong>, and click Stop. GnuPG's agent will take over the pipe after it restarts.</p>
+          </div>
+          <p>Kill the currently running agent so it picks up the new config on next start:</p>
+          <pre><code>gpgconf --kill gpg-agent
+gpg -K   # triggers agent restart</code></pre>
+          <p>Check that SSH can see the key:</p>
+          <pre><code>ssh-add -L
+# Expected output:
+# ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... (none)</code></pre>
+          <p>If the list is empty, confirm <code>sshcontrol</code> contains the keygrip and that the agent restarted: <code>gpg-agent --daemon --sh</code> should print its PID.</p>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">4</span>Export the SSH public key</h3>
+        <div class="step-body">
+          <pre><code>gpg --export-ssh-key FINGERPRINT</code></pre>
+          <p>Copy the output to clipboard or save to a file for use with GitHub and servers.</p>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">5</span>WSL2 — share the Windows gpg-agent</h3>
+        <div class="step-body">
+          <p>WSL2 runs a separate Linux kernel and cannot access Windows named pipes directly. Two options:</p>
+
+          <div class="platform-row" style="margin-top:4px;">
+            <div class="platform-block">
+              <h4>Option A — Independent GnuPG in WSL (simpler)</h4>
+              <p>Install GnuPG inside WSL, import your key material there, and follow the <a href="#linux">Linux steps</a> inside WSL. You maintain two copies of the key, but everything works natively.</p>
+              <pre><code># Inside WSL:
+sudo apt install gnupg
+# Transfer key (see Sync section)
+gpg --import mykey.asc</code></pre>
+            </div>
+            <div class="platform-block">
+              <h4>Option B — Bridge Windows agent into WSL</h4>
+              <p>Uses <a href="https://github.com/jstarks/npiperelay/releases"><code>npiperelay.exe</code></a> (on Windows PATH) and <code>socat</code> (inside WSL) to relay the Windows named pipe to a Unix socket in WSL.</p>
+              <pre><code># Inside WSL — install socat:
+sudo apt install socat
+
+# Add to ~/.bashrc:
+SSH_RELAY_SOCK="$HOME/.gnupg/S.gpg-agent.ssh"
+if ! pgrep -f "npiperelay.exe" > /dev/null 2>&1; then
+  rm -f "$SSH_RELAY_SOCK"
+  (setsid nohup socat \
+    UNIX-LISTEN:"$SSH_RELAY_SOCK",fork \
+    EXEC:"npiperelay.exe -ei -s //./pipe/openssh-ssh-agent",nofork \
+    > /dev/null 2>&1 &)
+fi
+export SSH_AUTH_SOCK="$SSH_RELAY_SOCK"</code></pre>
+              <p>Reload: <code>source ~/.bashrc</code>. Then verify with <code>ssh-add -L</code>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <strong>PuTTY and WinSCP</strong>
+        <p>If you use <a href="https://www.chiark.greenend.org.uk/~sgtatham/putty/">PuTTY</a> or <a href="https://winscp.net/">WinSCP</a>, see the <a href="#putty">PuTTY &amp; WinSCP section</a> below — they use the Pageant protocol rather than the OpenSSH named pipe and need one extra line in <code>gpg-agent.conf</code>.</p>
+      </div>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+
+    <!-- PUTTY + WINSCP -->
+    <section class="section" id="putty" aria-labelledby="putty-heading">
+      <div class="section-heading">
+        <p class="section-kicker">Windows clients</p>
+        <h2 id="putty-heading"><span class="platform-label windows" style="font-size:0.6em;vertical-align:middle;margin-right:8px;">Windows</span>PuTTY and WinSCP</h2>
+      </div>
+      <p class="section-intro"><a href="https://www.chiark.greenend.org.uk/~sgtatham/putty/">PuTTY</a> and <a href="https://winscp.net/">WinSCP</a> do not use the Windows OpenSSH named pipe. Instead they communicate with <a href="https://the.earth.li/~sgtatham/putty/latest/htmldoc/Chapter9.html">Pageant</a> — PuTTY's SSH agent — via a Windows shared-memory protocol. GnuPG's <code>enable-putty-support</code> makes <code>gpg-agent</code> speak that protocol, so PuTTY and WinSCP pick up your GPG-backed key automatically without Pageant ever being launched.</p>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">1</span>Add Pageant support to gpg-agent.conf</h3>
+        <div class="step-body">
+          <p>Open <code>%APPDATA%\gnupg\gpg-agent.conf</code> and add the line. If you already have the file from the OpenSSH steps, append to it — both options can coexist:</p>
+          <pre><code>@"
+enable-ssh-support
+enable-win32-openssh-support
+enable-putty-support
+"@ | Set-Content "$env:APPDATA\gnupg\gpg-agent.conf" -Encoding UTF8</code></pre>
+          <p>Verify:</p>
+          <pre><code>Get-Content "$env:APPDATA\gnupg\gpg-agent.conf"
+# enable-ssh-support
+# enable-win32-openssh-support
+# enable-putty-support</code></pre>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">2</span>Register your auth subkey (if not already done)</h3>
+        <div class="step-body">
+          <p>Same as the OpenSSH steps — the keygrip goes into <code>sshcontrol</code>. Skip this if you already completed the Windows OpenSSH section:</p>
+          <pre><code>Add-Content "$env:APPDATA\gnupg\sshcontrol" "57EEA3A4A6025A3BBFBAEC28ADD2ACA995BC185B"</code></pre>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">3</span>Restart gpg-agent</h3>
+        <div class="step-body">
+          <pre><code>gpgconf --kill gpg-agent
+gpg -K   # restarts the agent with the updated config</code></pre>
+          <p>Do <strong>not</strong> start Pageant separately. gpg-agent now answers Pageant protocol requests itself. Running both causes conflicts.</p>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">4</span>Test with PuTTY</h3>
+        <div class="step-body">
+          <p>First, get the SSH public key and add it to the server's <code>authorized_keys</code> (or GitHub — see the <a href="#github">GitHub section</a>):</p>
+          <pre><code>gpg --export-ssh-key 7DDC4865...1B055C9B</code></pre>
+          <p>Open a PuTTY session. Under <strong>Connection → SSH → Auth → Credentials</strong>, leave the private key field blank — PuTTY will request keys from the agent automatically. Connect to your server:</p>
+          <pre><code># Or test via plink (PuTTY's command-line SSH):
+plink -v user@yourserver.example.com</code></pre>
+          <p>PuTTY should authenticate without prompting for a private key file. The GPG passphrase prompt from <code>gpg-agent</code> (via <a href="https://www.gnupg.org/related_software/pinentry/index.html">pinentry</a>) will appear instead.</p>
+          <div class="callout info">
+            <strong>PuTTY key format note</strong>
+            <p>PuTTY natively uses <code>.ppk</code> files, but when using an agent (Pageant or gpg-agent with Pageant support) no <code>.ppk</code> file is needed or used. The agent provides the key directly. If PuTTY asks for a key file, it means agent negotiation failed — re-check that gpg-agent restarted after editing <code>gpg-agent.conf</code>.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">5</span>WinSCP: use the agent for file transfers</h3>
+        <div class="step-body">
+          <p><a href="https://winscp.net/">WinSCP</a> supports SFTP and SCP over SSH. It uses the same Pageant shared-memory protocol as PuTTY, so once gpg-agent has <code>enable-putty-support</code> enabled, WinSCP picks it up automatically.</p>
+          <p><strong>Verify Pageant agent auth is enabled in WinSCP:</strong></p>
+          <ol style="color:var(--muted);padding-left:1.4rem;margin:0;">
+            <li style="margin-bottom:6px;">Open WinSCP → <strong>New Session</strong> or edit an existing saved session.</li>
+            <li style="margin-bottom:6px;">In the session editor, go to <strong>Advanced… → SSH → Authentication</strong>.</li>
+            <li style="margin-bottom:6px;">Ensure <strong>"Attempt to use Pageant agent for authentication"</strong> is checked (it is on by default).</li>
+            <li style="margin-bottom:6px;">Leave the private key file field empty — the agent provides the key.</li>
+            <li>Click OK, then connect. WinSCP will query gpg-agent via the Pageant protocol.</li>
+          </ol>
+          <pre><code># WinSCP also ships a command-line tool (winscp.com):
+winscp.com /command "open sftp://user@yourserver.example.com/" "ls" "exit"</code></pre>
+          <div class="callout">
+            <strong>WinSCP and the OpenSSH agent</strong>
+            <p>WinSCP 5.21+ can also use the Windows OpenSSH named pipe (<code>\\.\pipe\openssh-ssh-agent</code>) if configured under <strong>Advanced → SSH → Authentication → Agent forwarding</strong>. If you have both <code>enable-win32-openssh-support</code> and <code>enable-putty-support</code> active, either path works — use whichever is already configured in your WinSCP sessions. More detail in the <a href="https://winscp.net/eng/docs/ui_login_authentication">WinSCP authentication docs</a>.</p>
+          </div>
+        </div>
+      </div>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+
+    <!-- GITHUB -->
+    <section class="section" id="github" aria-labelledby="github-heading">
+      <div class="section-heading">
+        <p class="section-kicker">Service</p>
+        <h2 id="github-heading">GitHub: SSH auth + commit signing</h2>
+      </div>
+      <p class="section-intro">GitHub uses your OpenPGP key in two separate roles: SSH authentication (cloning and pushing via <code>git@github.com</code>) and commit verification (the "Verified" badge on commits). Both use the same key, added through different settings screens.</p>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">1</span>Add your SSH public key to GitHub</h3>
+        <div class="step-body">
+          <p>Export the auth subkey in SSH format:</p>
+          <pre><code>gpg --export-ssh-key FINGERPRINT</code></pre>
+          <p>Go to <a href="https://github.com/settings/keys">github.com/settings/keys</a> → <strong>New SSH key</strong>. Set Key type to <strong>Authentication Key</strong>. Paste the output and save.</p>
+          <p>Test the connection:</p>
+          <pre><code>ssh -T git@github.com
+# Hi username! You've successfully authenticated...</code></pre>
+          <p>Configure git to use SSH for GitHub:</p>
+          <pre><code>git config --global url."git@github.com:".insteadOf "https://github.com/"</code></pre>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">2</span>Add your GPG public key to GitHub</h3>
+        <div class="step-body">
+          <p>Export the full public key (the primary key, not just the auth subkey):</p>
+          <pre><code>gpg --armor --export FINGERPRINT</code></pre>
+          <p>Go to <a href="https://github.com/settings/keys">github.com/settings/keys</a> → <strong>New GPG key</strong>. Paste the armored public key block and save.</p>
+          <div class="callout">
+            <strong>Match email addresses</strong>
+            <p>GitHub links your GPG key to commits by matching the email in your commits against a verified email address on your GitHub account that also appears in the key's User IDs. Your commit author email (<code>user.email</code> in git config) must appear in one of your key's UIDs <em>and</em> be verified on GitHub.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">3</span>Verify the setup</h3>
+        <div class="step-body">
+          <p>Make a signed commit on any repo and push. The commit should show a green <strong>Verified</strong> badge on GitHub within a few seconds.</p>
+          <pre><code>git commit --gpg-sign -m "test: verify GPG signing"
+git log --show-signature -1</code></pre>
+        </div>
+      </div>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+
+    <!-- GIT SIGNING -->
+    <section class="section workflow-section" id="gitsigning" aria-labelledby="gitsigning-heading">
+      <div class="section-heading">
+        <p class="section-kicker">Configuration</p>
+        <h2 id="gitsigning-heading">Git commit and tag signing</h2>
+      </div>
+      <p class="section-intro">Configure git to sign every commit and tag automatically. These settings go in your global git config (<code>~/.gitconfig</code>) and apply to all repositories on that machine.</p>
+
+      <ol class="timeline">
+        <li>
+          <span class="step-number">1</span>
+          <div>
+            <h3>Set your signing key</h3>
+            <p>Use the full fingerprint of your primary key. Git will find the right signing subkey automatically.</p>
+            <pre><code>git config --global user.signingkey FINGERPRINT</code></pre>
+          </div>
+        </li>
+        <li>
+          <span class="step-number">2</span>
+          <div>
+            <h3>Enable automatic commit signing</h3>
+            <pre><code>git config --global commit.gpgsign true
+git config --global tag.gpgsign true</code></pre>
+          </div>
+        </li>
+        <li>
+          <span class="step-number">3</span>
+          <div>
+            <h3>Point git at the right GPG binary (Windows)</h3>
+            <p>On Windows, git may look for <code>gpg</code> in a different location. Check with <code>where gpg</code> in PowerShell and set the path explicitly if needed:</p>
+            <pre><code>git config --global gpg.program "C:\Program Files (x86)\GnuPG\bin\gpg.exe"</code></pre>
+            <p>In WSL, git uses the WSL <code>gpg</code> binary — no extra config needed if GnuPG is installed there.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-number">4</span>
+          <div>
+            <h3>Verify a signed commit</h3>
+            <pre><code>git log --show-signature -1
+# Should show: gpg: Good signature from "Your Name &lt;you@example.com&gt;"</code></pre>
+          </div>
+        </li>
+        <li>
+          <span class="step-number">5</span>
+          <div>
+            <h3>Optional: SSH signing instead of GPG signing</h3>
+            <p>Git 2.34+ can sign commits with an SSH key directly (without GPG). This uses the auth subkey's SSH public key as the signing credential. It is simpler to configure but produces a different signature format — GPG-signed commits are more widely understood by forges. To use SSH signing:</p>
+            <pre><code>git config --global gpg.format ssh
+git config --global user.signingkey ~/.ssh/id_gpg_auth.pub</code></pre>
+            <p>And add the key as a <strong>Signing Key</strong> (not Authentication Key) on GitHub under <a href="https://github.com/settings/keys">SSH and GPG keys</a>.</p>
+          </div>
+        </li>
+      </ol>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+
+    <!-- SYNC -->
+    <section class="section" id="sync" aria-labelledby="sync-heading">
+      <div class="section-heading">
+        <p class="section-kicker">Key management</p>
+        <h2 id="sync-heading">Sync across machines</h2>
+      </div>
+      <p class="section-intro">The private key material lives in <code>gpg-agent</code>'s keybox and must be explicitly exported to move between machines. The public key travels freely. Never copy the raw keybox directory — always use GPG's own import/export.</p>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">1</span>Export key material from the source machine</h3>
+        <div class="step-body">
+          <pre><code># Export secret key (includes all subkeys):
+gpg --armor --export-secret-keys FINGERPRINT > mykey-secret.asc
+
+# Export public key (safe to distribute):
+gpg --armor --export FINGERPRINT > mykey-public.asc</code></pre>
+          <div class="callout warn">
+            <strong>Protect the secret key file</strong>
+            <p>The <code>.asc</code> file containing your secret key should be transferred over an encrypted channel (SCP, SFTP, encrypted USB). Delete it from both ends once the import is done. The passphrase protects the key material inside the file, but the file itself should not linger on disk.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">2</span>Transfer to the destination machine</h3>
+        <div class="step-body">
+          <pre><code># Secure copy over SSH:
+scp mykey-secret.asc user@destination:~/mykey-secret.asc</code></pre>
+          <p>Or use an encrypted USB drive. After copying, import on the destination:</p>
+          <pre><code>gpg --import mykey-secret.asc
+gpg --import mykey-public.asc   # usually already included above</code></pre>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">3</span>Set ultimate trust on the destination</h3>
+        <div class="step-body">
+          <p>After importing your own key, set the trust level to ultimate so GPG treats it as your own key:</p>
+          <pre><code>gpg --edit-key FINGERPRINT
+gpg> trust
+Your decision? 5   # I trust ultimately
+gpg> quit</code></pre>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">4</span>Re-register the auth subkey</h3>
+        <div class="step-body">
+          <p>On the new machine, add the auth subkey's keygrip to <code>sshcontrol</code> again (the keygrip is the same as on the source machine):</p>
+          <pre><code>gpg --with-keygrip -K FINGERPRINT
+# Copy the [A] keygrip
+
+# Linux:
+echo "KEYGRIP" >> ~/.gnupg/sshcontrol
+
+# Windows:
+echo KEYGRIP >> %APPDATA%\gnupg\sshcontrol</code></pre>
+        </div>
+      </div>
+
+      <div class="step-block">
+        <h3 class="step-heading"><span class="step-num">5</span>Clean up</h3>
+        <div class="step-body">
+          <pre><code># Delete the exported secret key file from both machines:
+# Linux / WSL:
+shred -u mykey-secret.asc   # or: rm mykey-secret.asc
+
+# PowerShell (Windows):
+Remove-Item mykey-secret.asc</code></pre>
+        </div>
+      </div>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+
+    <!-- TROUBLESHOOTING -->
+    <section class="section" id="troubleshoot" aria-labelledby="troubleshoot-heading">
+      <div class="section-heading">
+        <p class="section-kicker">Fixes</p>
+        <h2 id="troubleshoot-heading">Troubleshooting</h2>
+      </div>
+      <div class="troubleshoot-grid">
+
+        <div class="trouble-item">
+          <h3><code>ssh-add -L</code> returns "The agent has no identities"</h3>
+          <p><strong>Cause:</strong> The keygrip is missing from <code>sshcontrol</code>, or <code>SSH_AUTH_SOCK</code> points to the wrong agent.</p>
+          <p><strong>Fix:</strong> Verify <code>echo $SSH_AUTH_SOCK</code> matches <code>gpgconf --list-dirs agent-ssh-socket</code>. Verify the keygrip is in <code>~/.gnupg/sshcontrol</code>. Restart the agent: <code>gpgconf --kill gpg-agent</code>.</p>
+        </div>
+
+        <div class="trouble-item">
+          <h3>"Permission denied (publickey)" when connecting to a server or GitHub</h3>
+          <p><strong>Cause:</strong> The server's <code>authorized_keys</code> does not contain the key gpg-agent is offering, or the wrong agent is running.</p>
+          <p><strong>Fix:</strong> Run <code>ssh -v git@github.com</code> and look for which key is being offered. Compare with <code>gpg --export-ssh-key FINGERPRINT</code> output and what is in the server's <code>authorized_keys</code>. They must match exactly.</p>
+        </div>
+
+        <div class="trouble-item">
+          <h3>Commits are not showing as "Verified" on GitHub</h3>
+          <p><strong>Cause:</strong> The commit author email does not match a verified email on GitHub that also appears in a key UID, or the GPG public key is not uploaded to GitHub.</p>
+          <p><strong>Fix:</strong> Check <code>git config user.email</code>. Verify that email is both in your key's UIDs (<code>gpg -K</code>) and verified under GitHub Settings → Emails. Re-upload the public key after adding new UIDs.</p>
+        </div>
+
+        <div class="trouble-item">
+          <h3>Windows: <code>ssh-add -L</code> fails with "Error connecting to agent"</h3>
+          <p><strong>Cause:</strong> The Windows OpenSSH Authentication Agent service is running and owns the named pipe, blocking gpg-agent.</p>
+          <p><strong>Fix:</strong> Open <code>services.msc</code>, find <strong>OpenSSH Authentication Agent</strong>, stop it, and set startup type to Disabled. Then restart gpg-agent: <code>gpgconf --kill gpg-agent</code>.</p>
+        </div>
+
+        <div class="trouble-item">
+          <h3>WSL: SSH key not found after setting up the socat bridge</h3>
+          <p><strong>Cause:</strong> <code>npiperelay.exe</code> is not on the Windows PATH visible from WSL, <code>socat</code> is not installed, or a stale socket file is blocking the relay.</p>
+          <p><strong>Fix:</strong> In WSL, run <code>npiperelay.exe --help</code> to confirm it is accessible. Run <code>rm -f "$SSH_RELAY_SOCK"</code> to clear any stale socket, then <code>source ~/.bashrc</code> to restart the relay.</p>
+        </div>
+
+        <div class="trouble-item">
+          <h3>gpg-agent asks for passphrase on every git push</h3>
+          <p><strong>Cause:</strong> The cache TTL is set to zero or the agent restarts between operations.</p>
+          <p><strong>Fix:</strong> Add cache TTL settings to <code>gpg-agent.conf</code>. Values are in seconds:</p>
+          <pre><code>default-cache-ttl 3600
+max-cache-ttl 86400</code></pre>
+          <p>Restart the agent after editing: <code>gpgconf --kill gpg-agent</code>.</p>
+        </div>
+
+        <div class="trouble-item">
+          <h3><code>gpg --export-ssh-key</code> returns nothing</h3>
+          <p><strong>Cause:</strong> The key has no <code>[A]</code> subkey. Only auth subkeys are exported by this command.</p>
+          <p><strong>Fix:</strong> Follow the <a href="#authkey">auth subkey creation steps</a> to add one. Verify afterward: <code>gpg -K</code> should show <code>ssb ... [A]</code>.</p>
+        </div>
+
+        <div class="trouble-item">
+          <h3>Git signing fails with "error: gpg failed to sign the data"</h3>
+          <p><strong>Cause:</strong> <code>gpg.program</code> in git config points to the wrong binary, or the pinentry program cannot open a dialog (common in headless / SSH sessions).</p>
+          <p><strong>Fix:</strong> For headless sessions, set pinentry to console mode in <code>gpg-agent.conf</code>: <code>pinentry-program /usr/bin/pinentry-curses</code>. On Windows, ensure <code>gpg.program</code> in <code>~/.gitconfig</code> points to the Gpg4win <code>gpg.exe</code>. Test manually: <code>echo "test" | gpg --clearsign</code>.</p>
+        </div>
+
+      </div>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+
+    <!-- REFERENCES -->
+    <section class="section resources" id="links" aria-labelledby="links-heading">
+      <div class="section-heading">
+        <p class="section-kicker">References</p>
+        <h2 id="links-heading">Official documentation and further reading</h2>
+      </div>
+      <div class="resource-list">
+        <a href="https://www.gnupg.org/documentation/manuals/gnupg/Agent-Configuration.html">
+          <span>gpg-agent configuration reference</span>
+          <small>All gpg-agent.conf options including enable-ssh-support and cache settings</small>
+        </a>
+        <a href="https://www.gnupg.org/documentation/manuals/gnupg/Invoking-GPG_002dAGENT.html">
+          <span>Invoking gpg-agent (GnuPG manual)</span>
+          <small>Agent startup, socket paths, and protocol details</small>
+        </a>
+        <a href="https://www.gpg4win.org/documentation.html">
+          <span>Gpg4win documentation</span>
+          <small>Windows-specific setup including Kleopatra, agent config, and OpenSSH integration</small>
+        </a>
+        <a href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account">
+          <span>GitHub: Adding a new SSH key</span>
+          <small>Official steps for authentication and signing keys on GitHub</small>
+        </a>
+        <a href="https://docs.github.com/en/authentication/managing-commit-signature-verification/adding-a-gpg-key-to-your-github-account">
+          <span>GitHub: Adding a GPG key</span>
+          <small>Upload your public key for commit verification badges</small>
+        </a>
+        <a href="https://git-scm.com/book/en/v2/Git-Tools-Signing-Your-Work">
+          <span>Git Tools: Signing your work</span>
+          <small>Official Git documentation on GPG and SSH commit signing</small>
+        </a>
+        <a href="https://github.com/jstarks/npiperelay">
+          <span>npiperelay (GitHub)</span>
+          <small>Relay Windows named pipes into WSL Unix sockets — used for gpg-agent bridging</small>
+        </a>
+        <a href="https://www.gnupg.org/documentation/manuals/gnupg/OpenPGP-Key-Management.html">
+          <span>OpenPGP key management (GnuPG manual)</span>
+          <small>Subkey creation, keygrips, sshcontrol, and key export</small>
+        </a>
+        <a href="https://www.rfc-editor.org/rfc/rfc9580.html">
+          <span>RFC 9580 — OpenPGP specification</span>
+          <small>The current standard defining key structure, subkeys, and capability flags</small>
+        </a>
+        <a href="https://wiki.archlinux.org/title/GnuPG#SSH_agent">
+          <span>Arch Linux Wiki: GnuPG SSH agent</span>
+          <small>Practical notes on gpg-agent SSH mode across desktop environments</small>
+        </a>
+        <a href="https://www.chiark.greenend.org.uk/~sgtatham/putty/">
+          <span>PuTTY home page</span>
+          <small>Free SSH and Telnet client for Windows, includes Pageant and plink</small>
+        </a>
+        <a href="https://the.earth.li/~sgtatham/putty/latest/htmldoc/Chapter9.html">
+          <span>Pageant documentation (PuTTY manual)</span>
+          <small>How Pageant stores keys and how PuTTY clients request them over the shared-memory protocol</small>
+        </a>
+        <a href="https://winscp.net/eng/docs/ui_login_authentication">
+          <span>WinSCP authentication docs</span>
+          <small>Configuring private key files, Pageant agent, and OpenSSH agent in WinSCP sessions</small>
+        </a>
+        <a href="https://winscp.net/">
+          <span>WinSCP home page</span>
+          <small>Free SFTP, SCP, FTP, and WebDAV client for Windows with Pageant support</small>
+        </a>
+        <a href="https://www.gnupg.org/related_software/pinentry/index.html">
+          <span>pinentry (GnuPG)</span>
+          <small>The passphrase dialog component used by gpg-agent — several variants for different environments</small>
+        </a>
+      </div>
+      <p class="section-return"><a href="#top">Return to top</a></p>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>Part of the <a href="index.html">Using OpenPGP</a> hub — Boise Code Camp key signing party materials. Last reviewed May 2, 2026.</p>
+  </footer>
+</body>
+</html>

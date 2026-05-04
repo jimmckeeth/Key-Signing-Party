@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"E:/Jim/Documents/Git/Key-Signing-Party/handouts/data\")",
+      "Bash(mkdir -p \"E:/Jim/Documents/Git/Key-Signing-Party/handouts/build\")",
+      "Bash(python handouts/scripts/validate_submissions.py --input BccOpenPGPKey.csv --output-dir handouts/build --skip-keyserver-lookup)",
+      "Bash(typst compile *)"
+    ]
+  }
+}
